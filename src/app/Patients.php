@@ -43,24 +43,23 @@ class Patients
         'arrivalMethod' => null,
         'arrivalMethodNote' =>null,
         'speakingAbility' => null,
-        'speakingAbilityNote' null,
+        'speakingAbilityNote' => null,
         'hearingAbility' => null,
         'hearingAbilityNote' => null,
         'riskFactors' => null,
         'riskEvaluationDate' => null,
         'riskPoints' => null,
-    ], 
+    ];
 
-    public static function setupDb ( float $db_version=0 )
+    public static function setupDb(float $db_version = 0)
     {
         global $wpdb;
-
         $table = $wpdb->prefix . App::PATIENTS_TABLE;
-
-        require_once(  ABSPATH . 'wp-admin/includes/upgrade.php' );
-
-        dbDelta ("CREATE TABLE IF NOT EXISTS {$table} (
-            `id` bigint(20) unsigned not null,
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    
+        dbDelta("CREATE TABLE IF NOT EXISTS {$table} (
+            `id` bigint(20) unsigned not null auto_increment,
             `_created` datetime,
             `_edited` datetime,
             `status` varchar(250),
@@ -103,24 +102,22 @@ class Patients
             `riskPoints` bigint unsigned,
             primary key(`id`)
         ) {$wpdb->get_charset_collate()};");
-
-
     }
 
-    public static function prepareData(array $args, bool $extract_nums = true): array
-    {
-        $data = [];
+    // public static function prepareData(array $args, bool $extract_nums = true): array
+    // {
+    //     $data = [];
 
-        foreach ([
+    //     foreach ([
 
-        ] as $char) {
-            array_key_exists($char, $args) && ($data[$char] = trim($args[$char]));
-        }
+    //     ] as $char) {
+    //         array_key_exists($char, $args) && ($data[$char] = trim($args[$char]));
+    //     }
 
-        foreach ([
+    //     foreach ([
 
-        ] as $date) {
-            array_key_exists($float, $args) && ($data[$float] = $extract_nums ? App::extractNum($args[$float]) : $args[$float]);
-        }
-    }
+    //     ] as $date) {
+    //         array_key_exists($float, $args) && ($data[$float] = $extract_nums ? App::extractNum($args[$float]) : $args[$float]);
+    //     }
+    // }
 }
