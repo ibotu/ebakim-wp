@@ -7,7 +7,7 @@
  * Author: TR Consultancy
  * Version: 0.1
  * Author URI: https://eBakim.nl
- * Text Domain: eBakim
+ * Text Domain: ebakim-wp
  */
 
 if (!defined('WPINC')) {
@@ -15,7 +15,7 @@ if (!defined('WPINC')) {
 }
 
 require_once __DIR__ . '/src/vendor/autoload.php';
-require_once plugin_dir_path(__FILE__) . 'helpers/helper.php';
+require_once plugin_dir_path(__FILE__) . 'src/utils/helpers/helper.php';
 (new \eBakim\App(__FILE__))->setup();
 
 function wpdocs_render_list_patient()
@@ -28,6 +28,80 @@ function wpdocs_render_list_patient()
     }
 }
 
+
+function my_plugin_load_textdomain() {
+    $translation_file = dirname( plugin_basename( __FILE__ ) ) . '/languages/';
+    $loaded = load_plugin_textdomain( 'ebakim-wp', false, $translation_file );
+
+    if ($loaded) {
+        // dd('Translation domain loaded successfully.');
+    } else {
+        dd('Translation domain failed to load. File: ' . $translation_file);
+    }
+}
+add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
+
+
+
+
+function wpdocs_render_import_patient()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $file_tmp_name = $_FILES['excel_file']['tmp_name'];
+        $excel = fopen($file_tmp_name, 'r');
+        $data = [];
+
+        // Generate an array of alphabet characters
+        $alphabet = range('A', 'Z');
+
+        while (($row = fgetcsv($excel)) !== false) {
+            $rowData = [];
+            $dynamic_key_index = 0;
+
+            foreach ($row as $cell) {
+                // Generate dynamic key based on the current index
+                $dynamic_key = '';
+                if ($dynamic_key_index < 26) {
+                    $dynamic_key = $alphabet[$dynamic_key_index];
+                } else {
+                    $dynamic_key = $alphabet[(int)($dynamic_key_index / 26) - 1] . $alphabet[$dynamic_key_index % 26];
+                }
+
+                $rowData[$dynamic_key] = $cell;
+                $dynamic_key_index++;
+            }
+
+            $data[] = $rowData;
+        }
+
+        fclose($excel);
+        $has_error = 0;
+        foreach ($data as $key => $value) {
+            foreach ($_POST['patient'] as $inner_key => $inner_value) {
+                $data_to_insert[$inner_key] = $value[$inner_value];
+            }
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'eb_patients';
+            $wpdb->insert($table_name, $data_to_insert);
+
+            if ($wpdb->last_error !== '') {
+                $has_error = 1;
+            }
+        }
+        
+        $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
+        wp_redirect($redirect_url);
+        exit;
+
+    }
+
+    $template_path = plugin_dir_path(__FILE__) . 'src/views/wpdocs_render_import_patient.php';
+    if (file_exists($template_path)) {
+        include_once($template_path);
+    } else {
+        echo 'Template file not found.';
+    }
+}
 function wpdocs_render_add_patient()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -78,6 +152,7 @@ function wpdocs_render_add_patient()
 }
 function wpdocs_render_edit_patient()
 {
+    dd(1);
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
             "first_name" => is_array($_POST['first_name']) ? json_encode($_POST['first_name']) : $_POST['first_name'],
@@ -115,11 +190,8 @@ function wpdocs_render_edit_patient()
         global $wpdb;
         $table_name = $wpdb->prefix . 'eb_patients';
         $wpdb->update($table_name, $data, ['id' => $patient_id]);
-        $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
-        wp_redirect($redirect_url);
-        exit;
     }
-   
+
     // Redirect back to the list patient page after deletion
     $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
     wp_redirect($redirect_url);
@@ -147,8 +219,8 @@ function wpdocs_render_delete_patient()
 function main()
 {
     add_menu_page(
-        __('eBakim ', 'ebakim'),        // Sidebar menu title
-        __('eBakim', 'ebakim'),          // Actual page title
+        __('eBakim ', 'ebakim-wp'),        // Sidebar menu title
+        __('eBakim', 'ebakim-wp'),          // Actual page title
         'manage_options',               // Required capability to access the menu
         'ebakim',                       // Menu slug
         'main',   // Callback function to render the page
@@ -158,8 +230,8 @@ function main()
 
     add_submenu_page(
         'ebakim',                        // Parent menu slug
-        __('List Patient', 'ebakim'),    // Submenu page title
-        __('List Patient', 'ebakim'),    // Submenu menu title
+        __('List Patient', 'ebakim-wp'),    // Submenu page title
+        __('List Patient', 'ebakim-wp'),    // Submenu menu title
         'manage_options',                // Required capability to access the submenu
         'ebakim-list-patient',           // Submenu slug
         'wpdocs_render_list_patient'     // Callback function to render the submenu page
@@ -167,13 +239,22 @@ function main()
 
     add_submenu_page(
         'ebakim',                        // Parent menu slug
-        __('New Patient', 'ebakim'),     // Submenu page title
-        __('New Patient', 'ebakim'),     // Submenu menu title
+        __('New Patient', 'ebakim-wp'),     // Submenu page title
+        __('New Patient', 'ebakim-wp'),     // Submenu menu title
         'manage_options',                // Required capability to access the submenu
-        'ebakim-patient',            // Submenu slug
+        'ebakim-add-patient',            // Submenu slug
         'wpdocs_render_add_patient' // Callback function to render the submenu page
     );
-    remove_submenu_page('ebakim', 'ebakim');
+
+    add_submenu_page(
+        'ebakim',                        // Parent menu slug
+        __('Import Patient', 'ebakim-wp'),     // Submenu page title
+        __('Import Patient', 'ebakim-wp'),     // Submenu menu title
+        'manage_options',                // Required capability to access the submenu
+        'ebakim-import-patient',            // Submenu slug
+        'wpdocs_render_import_patient' // Callback function to render the submenu page
+    );
+    remove_submenu_page('ebakim', 'ebakim-wp');
 }
 
 
@@ -181,3 +262,5 @@ add_action('admin_menu', 'main');
 add_action('admin_post_add_patient', 'wpdocs_render_add_patient');
 add_action('admin_post_edit_patient', 'wpdocs_render_edit_patient');
 add_action('admin_post_delete_patient', 'wpdocs_render_delete_patient');
+add_action('admin_post_import_patients', 'wpdocs_render_import_patient');
+add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
