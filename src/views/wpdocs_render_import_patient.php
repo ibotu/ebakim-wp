@@ -15,7 +15,7 @@ include(__DIR__ . '/../templates/header.php');
     </div>
     <form id="column-map-form" enctype="multipart/form-data" method="POST" action="<?php echo admin_url('admin-post.php'); ?>">
 
-        <div style="width: 200px;padding: 1px 10px;">
+        <div style="width: 200px;">
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('Upload Excel File', 'ebakim'); ?></strong>
                 <input required accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" type="file" class="widefat" name="excel_file">

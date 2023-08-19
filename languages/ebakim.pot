@@ -2042,6 +2042,7 @@ msgstr ""
 #: wp-includes/class-wp-customize-manager.php:2658
 msgid "The previous set of changes has already been published. Please try saving your current set of changes again."
 msgstr ""
+msgstr ""
 
 #: wp-includes/class-wp-customize-manager.php:2681
 #: wp-includes/class-wp-customize-manager.php:2696
@@ -2116,7 +2117,8 @@ msgstr ""
 msgid "%s is already customizing this site. Do you want to take over?"
 msgstr ""
 
-#. translators: Hidden accessibility text.
+#. translators: Hidden accessi
+lity text.
 #: wp-includes/class-wp-customize-manager.php:4297
 #: wp-includes/script-loader.php:980
 #: wp-includes/widgets/class-wp-widget-text.php:542
