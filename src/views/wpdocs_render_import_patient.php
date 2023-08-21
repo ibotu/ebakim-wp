@@ -37,7 +37,7 @@ include(__DIR__ . '/../templates/header.php');
                         echo '<p class="wp-justify">';
                         echo '<strong>' . esc_html($formatted_column_name) . '</strong>';
                         echo '<select required class="widefat column-dropdown" name="patient[' . esc_attr($sample_column) . ']">';
-                        echo '<option value="">Select Column</option>'; // Add an empty option
+                        // echo '<option value="">Select Column</option>'; // Add an empty option
                         echo '</select>';
                         echo '</p>';
                     }
@@ -70,6 +70,7 @@ include(__DIR__ . '/../templates/header.php');
             const file = excelFileInput.files[0];
 
             if (file) {
+                let main_header = [];
                 const reader = new FileReader();
 
                 reader.onload = function(e) {
@@ -83,10 +84,9 @@ include(__DIR__ . '/../templates/header.php');
 
                     const firstRowData = {}; // Object to store the first row data
 
-                    let isHeaderRow = true; // Flag to identify header row
 
                     for (const cellAddress in worksheet) {
-                        if (cellAddress[0] === '!') continue; // Skip non-cell keys
+                        // if (cellAddress[0] === '!') continue; // Skip non-cell keys
 
                         const col = cellAddress.replace(/[0-9]/g, '');
                         const row = parseInt(cellAddress.replace(/[A-Z]/gi, ''), 10);
@@ -95,32 +95,40 @@ include(__DIR__ . '/../templates/header.php');
 
                         const cellValue = worksheet[cellAddress].v;
 
-                        if (isHeaderRow) {
-                            columns[col].push(cellValue); // Store headers in the array
-                        } else {
-                            columns[col].push(cellValue); // Store data in the array
 
-                            if (!firstRowData[col]) {
-                                firstRowData[col] = cellValue; // Store first row data
+                        if (cellValue) {
+                            if (row == 1) {
+                                // columns[col].push(cellValue); // Store headers in the array
+                                main_header.push(cellValue); // Store headers in the array
+                            } else {
+                                columns[col].push(cellValue); // Store data in the array
+
+                                if (!firstRowData[col]) {
+                                    firstRowData[col] = cellValue; // Store first row data
+                                }
                             }
                         }
-
-                        if (row === 1) {
-                            isHeaderRow = false; // Header row has been processed
-                        }
                     }
+
 
                     let all_options = '';
-                    for (let col in firstRowData) {
-                        let columnLabel = firstRowData[col];
-                        all_options += '<option name="' + col + '">' + col + '</option>';
-                    }
+let key_count = 0;
 
-                    columnDropdowns.forEach((dropdown) => {
-                        let select = $(dropdown);
-                        select.append(all_options);
+for (let col in firstRowData) {
+    let columnLabel = main_header[key_count];
+    key_count++;
+    all_options += '<option value="' + col + '">' + columnLabel + '</option>';
+}
 
-                    });
+columnDropdowns.forEach((dropdown, index) => {
+    let select = $(dropdown);
+    select.append(all_options);
+    
+    // Set the selected option based on the index
+    select.children('option').eq(index).prop('selected', true);
+});
+
+
                     columnMappingDiv.style.display = "block";
                 };
 

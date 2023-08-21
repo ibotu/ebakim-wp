@@ -184,63 +184,63 @@ if (isset($patient_data) && isset($patient_data->identification_sign)) {
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Identification Sign', 'ebakim-wp'); ?></strong>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image1.png') ?>" alt="image1" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image1.png') ?>" alt="image1" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Pembe_Yonca" <?php checked(in_array('Pembe_Yonca', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Pembe Yonca --- No Sugary Foods (meaning)', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image2.png') ?>" alt="image2" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image2.png') ?>" alt="image2" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Purple_Clover" <?php checked(in_array('Purple_Clover', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Purple Clover --- No Salty Foods', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image3.png') ?>" alt="image3" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image3.png') ?>" alt="image3" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Green_Clover_Leaf" <?php checked(in_array('Green_Clover_Leaf', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Green Clover Leaf --- Tripping Risk', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image4.png') ?>" alt="image4" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image4.png') ?>" alt="image4" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Black_Clover" <?php checked(in_array('Black_Clover', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Black Clover --- Suicide Risk', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image5.png') ?>" alt="image5" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image5.png') ?>" alt="image5" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Speech_Bubble" <?php checked(in_array('Speech_Bubble', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Speech Bubble --- Mental Illness', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image6.png') ?>" alt="image6" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image6.png') ?>" alt="image6" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="San_Triangle" <?php checked(in_array('San_Triangle', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('San Triangle --- Radiation Therapy', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image7.png') ?>" alt="image7" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image7.png') ?>" alt="image7" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Red_Star" <?php checked(in_array('Red_Star', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Red Star --- Risk of Contact Infection', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image8.png') ?>" alt="image8" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image8.png') ?>" alt="image8" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="Blue_Flower" <?php checked(in_array('Blue_Flower', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('Blue Flower --- Risk of Transmission via Drip', 'ebakim-wp'); ?>
             </label>
         </div>
         <div class="flex-div">
-            <img class="flowers" src="<?= plugins_url('/ebakim/src/assets/images/image9.png') ?>" alt="image9" width="500" height="600">
+            <img class="flowers" src="<?= plugins_url('/ebakim-wp/src/assets/images/image9.png') ?>" alt="image9" width="500" height="600">
             <input type="checkbox" name="identification_sign[]" value="San_Leaf" <?php checked(in_array('San_Leaf', $identification_sign_values)); ?>>
             <label>
                 <?php echo __('San Leaf --- Risk of Respiratory Contamination', 'ebakim-wp'); ?>

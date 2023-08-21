@@ -29,17 +29,18 @@ function wpdocs_render_list_patient()
 }
 
 
-function my_plugin_load_textdomain() {
-    $translation_file = dirname( plugin_basename( __FILE__ ) ) . '/languages/';
-    $loaded = load_plugin_textdomain( 'ebakim-wp', false, $translation_file );
+function my_plugin_load_textdomain()
+{
+    $translation_file = dirname(plugin_basename(__FILE__)) . '/languages/';
+    $loaded = load_plugin_textdomain('ebakim-wp', false, $translation_file);
 
     if ($loaded) {
         // dd('Translation domain loaded successfully.');
     } else {
-        dd('Translation domain failed to load. File: ' . $translation_file);
+        // dd('Translation domain failed to load. File: ' . $translation_file);
     }
 }
-add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
+add_action('plugins_loaded', 'my_plugin_load_textdomain');
 
 
 
@@ -77,6 +78,8 @@ function wpdocs_render_import_patient()
         fclose($excel);
         $has_error = 0;
         foreach ($data as $key => $value) {
+            if (!$key)
+                continue;
             foreach ($_POST['patient'] as $inner_key => $inner_value) {
                 $data_to_insert[$inner_key] = $value[$inner_value];
             }
@@ -88,11 +91,10 @@ function wpdocs_render_import_patient()
                 $has_error = 1;
             }
         }
-        
+
         $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
         wp_redirect($redirect_url);
         exit;
-
     }
 
     $template_path = plugin_dir_path(__FILE__) . 'src/views/wpdocs_render_import_patient.php';
@@ -152,7 +154,6 @@ function wpdocs_render_add_patient()
 }
 function wpdocs_render_edit_patient()
 {
-    dd(1);
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
             "first_name" => is_array($_POST['first_name']) ? json_encode($_POST['first_name']) : $_POST['first_name'],
@@ -223,7 +224,7 @@ function main()
         __('eBakim', 'ebakim-wp'),          // Actual page title
         'manage_options',               // Required capability to access the menu
         'ebakim',                       // Menu slug
-        'main',   // Callback function to render the page
+        'wpdocs_render_list_patient',   // Callback function to render the page
         'dashicons-admin-plugins',      // Dashicon for the menu
         6                               // Menu position
     );
@@ -254,7 +255,7 @@ function main()
         'ebakim-import-patient',            // Submenu slug
         'wpdocs_render_import_patient' // Callback function to render the submenu page
     );
-    remove_submenu_page('ebakim', 'ebakim-wp');
+    remove_submenu_page('ebakim', 'ebakim');
 }
 
 
@@ -263,4 +264,4 @@ add_action('admin_post_add_patient', 'wpdocs_render_add_patient');
 add_action('admin_post_edit_patient', 'wpdocs_render_edit_patient');
 add_action('admin_post_delete_patient', 'wpdocs_render_delete_patient');
 add_action('admin_post_import_patients', 'wpdocs_render_import_patient');
-add_action( 'plugins_loaded', 'my_plugin_load_textdomain' );
+add_action('plugins_loaded', 'my_plugin_load_textdomain');
