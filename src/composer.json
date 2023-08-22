@@ -24,6 +24,7 @@
     "require": {
         "phpoffice/phpspreadsheet": "^1.21",
         "zendframework/zendpdf": "^2.0",
-        "yahnis-elsts/plugin-update-checker": "^4.13"
+        "yahnis-elsts/plugin-update-checker": "^4.13",
+        "endroid/qr-code": "^4.8"
     }
 }

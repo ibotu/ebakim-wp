@@ -14,9 +14,40 @@ if (!defined('WPINC')) {
     exit; // direct access
 }
 
+
 require_once __DIR__ . '/src/vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'src/utils/helpers/helper.php';
+
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
+use Endroid\QrCode\Label\Label;
+use Endroid\QrCode\Logo\Logo;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeModeMargin;
+use Endroid\QrCode\Writer\PngWriter;
+
 (new \eBakim\App(__FILE__))->setup();
+
+function generate_qr_code_url($secretKey = null)
+{
+    $writer = new PngWriter();
+    $qrCode = QrCode::create($secretKey)
+        ->setEncoding(new Encoding('UTF-8'))
+        ->setErrorCorrectionLevel(new ErrorCorrectionLevelLow())
+        ->setSize(350)
+        ->setMargin(5)
+        ->setRoundBlockSizeMode(new RoundBlockSizeModeMargin())
+        ->setForegroundColor(new Color(0, 0, 0))
+        ->setBackgroundColor(new Color(255, 255, 255));
+
+    // Create generic label
+    $label = Label::create('2FA Code : ' . $secretKey)
+        ->setTextColor(new Color(255, 0, 0));
+
+    $result = $writer->write($qrCode, null, null);
+    return $result->getDataUri();
+}
 
 function wpdocs_render_list_patient()
 {
@@ -27,7 +58,6 @@ function wpdocs_render_list_patient()
         echo 'Template file not found.';
     }
 }
-
 
 function my_plugin_load_textdomain()
 {
@@ -40,10 +70,6 @@ function my_plugin_load_textdomain()
         // dd('Translation domain failed to load. File: ' . $translation_file);
     }
 }
-add_action('plugins_loaded', 'my_plugin_load_textdomain');
-
-
-
 
 function wpdocs_render_import_patient()
 {
@@ -104,6 +130,7 @@ function wpdocs_render_import_patient()
         echo 'Template file not found.';
     }
 }
+
 function wpdocs_render_add_patient()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -152,6 +179,7 @@ function wpdocs_render_add_patient()
         echo 'Template file not found.';
     }
 }
+
 function wpdocs_render_edit_patient()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -216,7 +244,6 @@ function wpdocs_render_delete_patient()
     }
 }
 
-
 function main()
 {
     add_menu_page(
@@ -258,10 +285,113 @@ function main()
     remove_submenu_page('ebakim', 'ebakim');
 }
 
+function generate_secret_key()
+{
+    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; // Allowed characters for the key
+    $key_length = 16; // Length of the key
+    $key = '';
+    for ($i = 0; $i < $key_length; $i++) {
+        $key .= $characters[random_int(0, strlen($characters) - 1)];
+    }
+    return $key;
+}
 
+function ebakim_settings_page()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $enable_2fa = isset($_POST['ebakim_enable_2fa']) ? 1 : 0;
+        update_user_meta(get_current_user_id(), 'ebakim_enable_2fa', $enable_2fa);
+        if ($enable_2fa) {
+            $secret_key = generate_secret_key();
+            update_user_meta(get_current_user_id(), 'ebakim_secret_key', $secret_key);
+        } else {
+            delete_user_meta(get_current_user_id(), 'ebakim_secret_key');
+        }
+    }
+    $enable_2fa = get_user_meta(get_current_user_id(), 'ebakim_enable_2fa', true);
+    echo '<div class="wrap">';
+    echo '<h2>eBakim Settings</h2>';
+    echo '<form method="post">';
+    echo '<label><input type="checkbox" name="ebakim_enable_2fa" value="1" ' . checked($enable_2fa, 1, false) . '> Enable Two-Factor Authentication</label>';
+    if ($enable_2fa) {
+        $secret_key = generate_secret_key(); // Your function to generate a secret key
+        update_user_meta(get_current_user_id(), 'ebakim_secret_key', $secret_key);
+        echo '<p>Scan this QR code using a 2FA app:</p>';
+        echo '<div style="text-align: center;">';
+        echo '<img src="' . generate_qr_code_url($secret_key) . '" alt="QR Code" style="max-width: 200px;">';
+        echo '<p style="font-size: 15px;font-weight: bold;">2FA Code : ' . $secret_key . '</p>';
+        echo '</div>';
+    }
+    echo '</br>';
+    echo '</br>';
+    echo '<input type="submit" class="button-primary" value="Save Changes">';
+    echo '</form>';
+    echo '</div>';
+}
+
+function ebakim_add_settings_page()
+{
+    add_submenu_page(
+        'options-general.php',
+        'eBakim Settings',
+        'eBakim',
+        'manage_options',
+        'ebakim-settings',
+        'ebakim_settings_page'
+    );
+}
+
+function ebakim_add_2fa_input() {
+    $user_id = get_current_user_id();
+    $enable_2fa = get_user_meta($user_id, 'ebakim_enable_2fa', true);
+    // if ($enable_2fa) {
+    if (1) {
+        echo '<p><label for="ebakim_2fa_code">2FA Code:</label>';
+        echo '<input type="text" name="ebakim_2fa_code" id="ebakim_2fa_code" class="input" /></p>';
+    }
+}
+
+function ebakim_verify_2fa_code($user = null, $username = null, $password = null)
+{
+    if ($user instanceof WP_User) {
+        $enable_2fa = get_user_meta($user->ID, 'ebakim_enable_2fa', true);
+        if ($enable_2fa) {
+            $secret_key = get_user_meta($user->ID, 'ebakim_secret_key', true);
+            $otp_code = sanitize_text_field(isset($_POST['ebakim_2fa_code']) ? $_POST['ebakim_2fa_code'] : ''); // Form field for entering the 2FA code
+            if ($otp_code == $secret_key) {
+                return $user;
+            } else {
+                return new WP_Error('authentication_failed', 'Invalid 2FA code.');
+            }
+        }
+    }
+    return $user;
+}
+
+function generate_otp($secretKey)
+{
+    return substr(md5($secretKey . date('YmdHis')), 0, 6);
+}
+
+function ebakim_display_2fa_error_message($errors)
+{
+    if ($error_code = $errors->get_error_code()) {
+        if ('authentication_failed' === $error_code) {
+            $error_message = __('Invalid username, password, or 2FA code.');
+            $errors->add('authentication_failed', $error_message);
+        }
+    }
+    return $errors;
+}
+
+add_action('plugins_loaded', 'my_plugin_load_textdomain');
 add_action('admin_menu', 'main');
 add_action('admin_post_add_patient', 'wpdocs_render_add_patient');
 add_action('admin_post_edit_patient', 'wpdocs_render_edit_patient');
 add_action('admin_post_delete_patient', 'wpdocs_render_delete_patient');
 add_action('admin_post_import_patients', 'wpdocs_render_import_patient');
 add_action('plugins_loaded', 'my_plugin_load_textdomain');
+add_filter('wp_login_errors', 'ebakim_display_2fa_error_message');
+add_filter('wp_authenticate_user', 'ebakim_verify_2fa_code', 10, 3);
+add_action('login_form', 'ebakim_add_2fa_input');
+add_action('admin_menu', 'ebakim_add_settings_page');
