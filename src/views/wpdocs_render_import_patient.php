@@ -11,17 +11,17 @@ include(__DIR__ . '/../templates/header.php');
 </style>
 <div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:.55rem">
-        <h1 style="padding:9px 9px 9px 0"><?php _e('eBakim &lsaquo; Import Patients', 'ebakim-wp'); ?></h1>
+        <h1 style="padding:9px 9px 9px 0"><?php _e('eBakim &lsaquo; Import Patients', 'ebakim'); ?></h1>
     </div>
     <form id="column-map-form" enctype="multipart/form-data" method="POST" action="<?php echo admin_url('admin-post.php'); ?>">
 
-        <div style="width: 200px;background: #e4e4e4;padding: 1px 10px;">
+        <div style="width: 200px;">
             <p>
-                <strong style="display: table; margin-bottom: 5px"><?php echo __('Upload Excel File', 'ebakim-wp'); ?></strong>
+                <strong style="display: table; margin-bottom: 5px"><?php echo __('Upload Excel File', 'ebakim'); ?></strong>
                 <input required accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" type="file" class="widefat" name="excel_file">
             </p>
             <p>
-                <input type="button" id="upload_file" class="button button-primary" value="<?php esc_attr_e('Upload File', 'ebakim-wp'); ?>">
+                <input type="button" id="upload_file" class="button button-primary" value="<?php esc_attr_e('Upload File', 'ebakim'); ?>">
             </p>
         </div>
 
@@ -81,6 +81,11 @@ include(__DIR__ . '/../templates/header.php');
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
 
+                    /*  @TODO The CellNames of Row 2 Are the Names for the SelectLists
+                        The SelectOptions are automatically generated from the second row of the excel file
+                        The SelectOptions are automatically mapped to the options on the screen
+
+                    */ 
 
                     const firstRowData = {}; // Object to store the first row data
 
