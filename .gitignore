@@ -35,7 +35,6 @@ wp-config.php
 # htaccess
 /.htaccess
 
-.DS_Store
 # All plugins
 #
 # Note: If you wish to whitelist plugins,
@@ -47,3 +46,7 @@ wp-config.php
 # Note: If you wish to whitelist themes,
 # uncomment the next line
 #/wp-content/themes
+*/.DS_Store
+src/.DS_Store
+src/app/.DS_Store
+src/vendor/.DS_Store
