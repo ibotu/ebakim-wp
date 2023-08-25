@@ -266,17 +266,11 @@ function main()
         'wpdocs_render_import_patient' // Callback function to render the submenu page
     );
 
-    add_submenu_page(
-        'ebakim',
-        __('Settings', 'ebakim-wp'),
-        __('Settings', 'ebakim-wp'),
-        'manage_options',
-        'ebakim-settings',
-        'ebakim_settings_page'
-    );
-
     remove_submenu_page('ebakim', 'ebakim');
 }
+
+
+
 
 add_action('plugins_loaded', 'my_plugin_load_textdomain');
 add_action('admin_menu', 'main');
@@ -284,99 +278,138 @@ add_action('admin_post_add_patient', 'wpdocs_render_add_patient');
 add_action('admin_post_edit_patient', 'wpdocs_render_edit_patient');
 add_action('admin_post_delete_patient', 'wpdocs_render_delete_patient');
 add_action('admin_post_import_patients', 'wpdocs_render_import_patient');
-add_action('admin_post_2_fa', 'ebakim_2fa_authentication_page');
 
 
 
 
 
 
-add_action('admin_init', 'ebakim_settings_init');
-add_action('login_form', 'ebakim_login_form');
-add_filter('authenticate', 'ebakim_authenticate', 20, 3);
-
-function ebakim_settings_init()
+function custom_login_logo()
 {
-    register_setting('ebakim-settings', 'ebakim_enable_2fa');
+    $custom_logo_url = plugins_url('/ebakim-wp/src/assets/images/main-logo.png');
+    echo '<style type="text/css">
+        .login h1 a {
+            background-image: url(' . $custom_logo_url . ');
+            background-size: contain;
+            width: 100%;
+            height: 160px   ; /* Adjust this height as needed */
+        }
+    </style>';
 }
+add_action('login_header', 'custom_login_logo');
 
-function ebakim_login_form()
+
+
+
+
+function verify_2fa_during_setup()
 {
-    if (get_option('ebakim_enable_2fa') == 1) {
+   
+    $authCode = isset($_POST['2fa_code']) ? $_POST['2fa_code'] : '';
 
-?>
-        <p>
-            <label for="auth_code"><?php _e('Enter Authentication Code:', 'ebakim-wp'); ?></label>
-            <input type="text" id="auth_code" name="auth_code" class="input" value="<?php echo isset($_POST['auth_code']) ? esc_attr($_POST['auth_code']) : ''; ?>">
-        </p>
-    <?php
+    if (empty($authCode)) {
+        set_flash_error_cookie(__('Please enter the authentication code.', 'ebakim-wp'));
+        redirect_back();
+    }
+
+    $key = get_2fa_key();
+    $secretKey = base32_encode($key);
+    $authenticator = new PHPGangsta_GoogleAuthenticator();
+    $isValidCode = $authenticator->verifyCode($secretKey, $authCode, 2);
+
+    if (!$isValidCode) {
+        set_flash_error_cookie(__('Authentication code is invalid.', 'ebakim-wp'));
+        redirect_back();
+    } else {
+        update_user_meta(get_current_user_id(), '2fa_verified', 1);
+        update_user_meta(get_current_user_id(), 'allow_user_to_dashboard', 1);
+        wp_redirect(admin_url());
+        exit();
     }
 }
 
-function ebakim_authenticate($user, $username, $password)
+
+
+
+
+add_action('admin_post_setup_2fa', 'verify_2fa_during_setup');
+
+
+
+
+
+function custom_login_redirect($user_login = '', $user = '')
 {
-    if (!empty($username) && !empty($password)) {
-        $authCode = isset($_POST['auth_code']) ? $_POST['auth_code'] : '';
-        if (get_option('ebakim_enable_2fa') == 1) {
+    if ($user->id) {
+        // dd($user->id);
+        $is_2fa_enabled = get_user_meta($user->id, '2fa_verified', true);
 
-            if (empty($authCode)) {
-                $error = new WP_Error();
-                $error->add('authcode_error', __('<strong>Error:</strong> Please enter the authentication code.', 'ebakim-wp'));
-                return $error;
-            }
-
-            $secretKey = 'K5IHGX3FIJQWW2LN';
-            $authenticator = new PHPGangsta_GoogleAuthenticator();
-            $isValidCode = $authenticator->verifyCode($secretKey, $authCode, 2);
-
-            if (!$isValidCode) {
-                $error = new WP_Error();
-                $error->add('authcode_error', __('<strong>Error:</strong> Authentication code is invalid.', 'ebakim-wp'));
-                return $error;
-            }
+        if ($is_2fa_enabled) {
+            wp_redirect(get_site_url() . '/wp-2fa-auth.php');
+            exit;
+        } else {
+            wp_redirect(get_site_url() . '/wp-2fa-setup.php');
+            exit;
         }
     }
-    return $user;
 }
+add_action('wp_login', 'custom_login_redirect', 10, 2); // Increased priority value (default is 10)
 
 
-function ebakim_settings_page()
+
+
+function verify_2fa()
 {
-    ?>
-    <div class="wrap">
-        <h2>eBakim Settings</h2>
-        <form method="post" action="options.php">
-            <?php settings_fields('ebakim-settings'); ?>
-            <?php do_settings_sections('ebakim-settings'); ?>
-            <table class="form-table">
-                <tr>
-                    <th scope="row">Enable Two-Factor Authentication</th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="ebakim_enable_2fa" value="1" <?php checked(get_option('ebakim_enable_2fa'), 1); ?>>
-                            Enable
-                        </label>
-                    </td>
-                </tr>
-                <?php if (get_option('ebakim_enable_2fa') == 1) : ?>
-                    <tr>
-                        <th scope="row">Authentication QR Code</th>
-                        <td>
-                            <?php
-                            // Generate and display QR code here
-                            $secretKey = 'K5IHGX3FIJQWW2LN'; // Replace with your secret key
-                            $authenticator = new PHPGangsta_GoogleAuthenticator();
-                            $qrCodeUrl = $authenticator->getQRCodeGoogleUrl('WP_eBakim', $secretKey);
-                            ?>
-                            <img src="<?php echo esc_attr($qrCodeUrl); ?>" alt="QR Code">
-                        </td>
-                    </tr>
-                <?php endif; ?>
-            </table>
-            <?php submit_button(); ?>
-        </form>
-    </div>
-<?php
-    // Log the user out
 
+    $authCode = isset($_POST['2fa_code']) ? $_POST['2fa_code'] : '';
+ 
+    if (get_user_meta(get_current_user_id(), '2fa_verified', true)) {
+
+        if (empty($authCode)) {
+            set_flash_error_cookie(__('Please enter the authentication code.', 'ebakim-wp'));
+            redirect_back();
+        }
+
+        $key = get_2fa_key();
+        $secretKey = base32_encode($key);
+        $authenticator = new PHPGangsta_GoogleAuthenticator();
+        $isValidCode = $authenticator->verifyCode($secretKey, $authCode, 2);
+
+        if (!$isValidCode) {
+            set_flash_error_cookie(__('Authentication code is invalid.', 'ebakim-wp'));
+            redirect_back();
+        } else {
+            update_user_meta(get_current_user_id(), 'allow_user_to_dashboard', 1);
+            wp_redirect(admin_url());
+            exit();
+        }
+    } else {
+        set_flash_error_cookie( __('2FA is not enabled for this user.', 'ebakim-wp'));
+        redirect_back();
+    }
 }
+add_action('admin_post_verify_2fa', 'verify_2fa');
+    
+
+
+function allow_user_to_dashboard()
+{
+    if (!get_user_meta(get_current_user_id(), 'allow_user_to_dashboard', true)) {
+        
+        wp_redirect(site_url('/wp-login.php'));
+    }
+}
+
+
+
+add_action('admin_init', 'allow_user_to_dashboard'); // Increased priority value (default is 10)
+
+
+
+function custom_logout_action($user_id) {
+    if ($user_id) {
+        delete_user_meta($user_id, 'allow_user_to_dashboard');
+        // Other custom actions for logout
+    }
+}
+add_action('wp_logout', 'custom_logout_action');
