@@ -344,13 +344,16 @@ function custom_login_redirect($user_login = '', $user = '')
         // dd($user->id);
         $is_2fa_enabled = get_user_meta($user->id, '2fa_verified', true);
 
-        if ($is_2fa_enabled) {
-            wp_redirect(get_site_url() . '/wp-2fa-auth.php');
-            exit;
-        } else {
-            wp_redirect(get_site_url() . '/wp-2fa-setup.php');
-            exit;
-        }
+       if ($is_2fa_enabled) {
+    $auth_url = plugins_url('wp-2fa-auth.php', __FILE__);
+    wp_redirect($auth_url);
+    exit;
+} else {
+    $setup_url = plugins_url('wp-2fa-setup.php', __FILE__);
+    wp_redirect($setup_url);
+    exit;
+}
+
     }
 }
 add_action('wp_login', 'custom_login_redirect', 10, 2); // Increased priority value (default is 10)
