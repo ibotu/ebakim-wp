@@ -1,7 +1,5 @@
 <?php defined('WPINC') || exit; ?>
-<?php
-include(__DIR__ . '/../templates/header.php');
-?>
+<?php include(__DIR__ . '/../templates/header.php'); ?>
 <style>
     .wp-justify {
         display: flex;
@@ -37,7 +35,6 @@ include(__DIR__ . '/../templates/header.php');
                         echo '<p class="wp-justify">';
                         echo '<strong>' . esc_html($formatted_column_name) . '</strong>';
                         echo '<select required class="widefat column-dropdown" name="patient[' . esc_attr($sample_column) . ']">';
-                        // echo '<option value="">Select Column</option>'; // Add an empty option
                         echo '</select>';
                         echo '</p>';
                     }
@@ -45,7 +42,6 @@ include(__DIR__ . '/../templates/header.php');
                     <p>
                         <input type="submit" class="button button-primary" value="<?php esc_attr_e('Save Mapping', 'ebakim-wp'); ?>">
                     </p>
-
                 </div>
             </div>
         </div>
@@ -81,18 +77,9 @@ include(__DIR__ . '/../templates/header.php');
                     const sheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[sheetName];
 
-                    /*  @TODO The CellNames of Row 2 Are the Names for the SelectLists
-                        The SelectOptions are automatically generated from the second row of the excel file
-                        The SelectOptions are automatically mapped to the options on the screen
-
-                    */ 
-
-                    const firstRowData = {}; // Object to store the first row data
-
+                    const firstRowData = {};
 
                     for (const cellAddress in worksheet) {
-                        // if (cellAddress[0] === '!') continue; // Skip non-cell keys
-
                         const col = cellAddress.replace(/[0-9]/g, '');
                         const row = parseInt(cellAddress.replace(/[A-Z]/gi, ''), 10);
 
@@ -100,39 +87,33 @@ include(__DIR__ . '/../templates/header.php');
 
                         const cellValue = worksheet[cellAddress].v;
 
-
                         if (cellValue) {
                             if (row == 1) {
-                                // columns[col].push(cellValue); // Store headers in the array
-                                main_header.push(cellValue); // Store headers in the array
+                                main_header.push(cellValue);
                             } else {
-                                columns[col].push(cellValue); // Store data in the array
+                                columns[col].push(cellValue);
 
                                 if (!firstRowData[col]) {
-                                    firstRowData[col] = cellValue; // Store first row data
+                                    firstRowData[col] = cellValue;
                                 }
                             }
                         }
                     }
 
-
                     let all_options = '';
-let key_count = 0;
+                    let key_count = 0;
 
-for (let col in firstRowData) {
-    let columnLabel = main_header[key_count];
-    key_count++;
-    all_options += '<option value="' + col + '">' + columnLabel + '</option>';
-}
+                    for (let col in firstRowData) {
+                        let columnLabel = main_header[key_count];
+                        key_count++;
+                        all_options += '<option value="' + col + '">' + columnLabel + '</option>';
+                    }
 
-columnDropdowns.forEach((dropdown, index) => {
-    let select = $(dropdown);
-    select.append(all_options);
-    
-    // Set the selected option based on the index
-    select.children('option').eq(index).prop('selected', true);
-});
-
+                    columnDropdowns.forEach((dropdown, index) => {
+                        let select = $(dropdown);
+                        select.append(all_options);
+                        select.children('option').eq(index).prop('selected', true);
+                    });
 
                     columnMappingDiv.style.display = "block";
                 };

@@ -5,11 +5,15 @@ global $wpdb;
 $eb_patients = $wpdb->prefix . 'eb_patients';
 $patient_data = $wpdb->get_results("SELECT * FROM $eb_patients");
 
-
-
 // wp_redirect($redirect_url);
 
 ?>
+<style>
+    .column-actions{
+        display: flex;
+    gap: 5px;
+    }
+</style>
 
 <div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:.55rem">
@@ -22,28 +26,38 @@ $patient_data = $wpdb->get_results("SELECT * FROM $eb_patients");
     <table class="wp-list-table widefat plugins this_datatable">
         <thead class="dark">
             <tr>
-                <th scope="col" class="manage-column column-first_name"><?php _e('First Name', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-last_name"><?php _e('Last Name', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-email"><?php _e('Email', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-phone"><?php _e('Phone', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-address"><?php _e('Address', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-city"><?php _e('City', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-province"><?php _e('Province', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-zipcode"><?php _e('Zipcode', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-zipcode"><?php _e('Actions', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientID"><?php _e('Patient ID', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientFullName"><?php _e('Patient Full Name', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientBirthDate"><?php _e('Patient Birth Date', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientTcNumber"><?php _e('Patient T.C. Number', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicAcceptanceDate"><?php _e('Clinic Acceptance Date', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicPlacementType"><?php _e('Clinic Placement Type', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicPlacementStatus"><?php _e('Clinic Placement Status', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicEndDate"><?php _e('Clinic End Date', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicLifePlanDate"><?php _e('Clinic Life Plan Date', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicEskrDate"><?php _e('Clinic ESKR Date', 'ebakim-wp'); ?></th>
+                <!-- <th scope="col" class="manage-column column-clinicGuardianDate"><?php _e('Clinic Guardian Date', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-clinicAllowanceStatus"><?php _e('Clinic Allowance Status', 'ebakim-wp'); ?></th> -->
+                <!-- Add other field column headers here -->
+                <th scope="col" class="manage-column column-actions"><?php _e('Actions', 'ebakim-wp'); ?></th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($patient_data as $k => $v) { ?>
                 <tr>
-                    <td class="name column-<?= $v->first_name ?>"><strong><?= $v->first_name ?></strong></td>
-                    <td class="name column-<?= $v->last_name ?>"><strong><?= $v->last_name ?></strong></td>
-                    <td class="name column-<?= $v->email ?>"><strong><?= $v->email ?></strong></td>
-                    <td class="name column-<?= $v->phone ?>"><strong><?= $v->phone ?></strong></td>
-                    <td class="name column-<?= $v->address ?>"><strong><?= $v->address ?></strong></td>
-                    <td class="name column-<?= $v->city ?>"><strong><?= $v->city ?></strong></td>
-                    <td class="name column-<?= $v->province ?>"><strong><?= $v->province ?></strong></td>
-                    <td class="name column-<?= $v->zipcode ?>"><strong><?= $v->zipcode ?></strong></td>
+                    <td class="name column-<?= $v->patientID ?>"><strong><?= $v->patientID ?></strong></td>
+                    <td class="name column-<?= $v->patientFullName ?>"><strong><?= $v->patientFullName ?></strong></td>
+                    <td class="name column-<?= $v->patientBirthDate ?>"><strong><?= ($v->patientBirthDate == '0000-00-00 00:00:00') ? '-' : $v->patientBirthDate ?></strong></td>
+                    <td class="name column-<?= $v->patientTcNumber ?>"><strong><?= $v->patientTcNumber ?></strong></td>
+                    <td class="name column-<?= $v->clinicAcceptanceDate ?>"><strong><?= ($v->clinicAcceptanceDate == '0000-00-00 00:00:00') ? '-' : $v->clinicAcceptanceDate ?></strong></td>
+                    <td class="name column-<?= $v->clinicPlacementType ?>"><strong><?= $v->clinicPlacementType ?></strong></td>
+                    <td class="name column-<?= $v->clinicPlacementStatus ?>"><strong><?= $v->clinicPlacementStatus ?></strong></td>
+                    <td class="name column-<?= $v->clinicEndDate ?>"><strong><?= ($v->clinicEndDate == '0000-00-00 00:00:00') ? '-' : $v->clinicEndDate ?></strong></td>
+                    <td class="name column-<?= $v->clinicLifePlanDate ?>"><strong><?= ($v->clinicLifePlanDate == '0000-00-00 00:00:00') ? '-' : $v->clinicLifePlanDate ?></strong></td>
+                    <td class="name column-<?= $v->clinicEskrDate ?>"><strong><?= ($v->clinicEskrDate == '0000-00-00 00:00:00') ? '-' : $v->clinicEskrDate ?></strong></td>
+                    <!-- <td class="name column-<?= $v->clinicGuardianDate ?>"><strong><?= ($v->clinicGuardianDate == '0000-00-00 00:00:00') ? '-' : $v->clinicGuardianDate ?></strong></td>
+                    <td class="name column-<?= $v->clinicAllowanceStatus ?>"><strong><?= $v->clinicAllowanceStatus ?></strong></td> -->
+                    <!-- Add other field values here -->
                     <td class="name column-actions">
                         <a href="<?php echo admin_url('admin.php?page=ebakim-add-patient&id=' . $v->id); ?>" class="button"><?php _e('Edit', 'ebakim-wp'); ?></a>
                         <a href="<?php echo admin_url('admin-post.php?action=delete_patient&id=' . $v->id); ?>" class="button button-danger" onclick="return confirm('Are you sure you want to delete this patient?');">

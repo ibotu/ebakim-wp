@@ -60,14 +60,14 @@ function wpdocs_render_import_patient()
         $file_tmp_name = $_FILES['excel_file']['tmp_name'];
         $excel = fopen($file_tmp_name, 'r');
         $data = [];
-
+    
         // Generate an array of alphabet characters
         $alphabet = range('A', 'Z');
-
+    
         while (($row = fgetcsv($excel)) !== false) {
             $rowData = [];
             $dynamic_key_index = 0;
-
+    
             foreach ($row as $cell) {
                 // Generate dynamic key based on the current index
                 $dynamic_key = '';
@@ -76,35 +76,51 @@ function wpdocs_render_import_patient()
                 } else {
                     $dynamic_key = $alphabet[(int)($dynamic_key_index / 26) - 1] . $alphabet[$dynamic_key_index % 26];
                 }
-
+    
                 $rowData[$dynamic_key] = $cell;
                 $dynamic_key_index++;
             }
-
+    
             $data[] = $rowData;
         }
-
+    
         fclose($excel);
         $has_error = 0;
         foreach ($data as $key => $value) {
             if (!$key)
                 continue;
-            foreach ($_POST['patient'] as $inner_key => $inner_value) {
-                $data_to_insert[$inner_key] = $value[$inner_value];
-            }
+    
+            $data_to_insert = [
+                'status' => $value['A'],
+                'patientID' => $value['B'],
+                'patientFullName' => $value['C'],
+                'patientBirthDate' => $value['D'],
+                'patientTcNumber' => $value['E'],
+                'clinicAcceptanceDate' => $value['F'],
+                'clinicPlacementType' => $value['G'],
+                'clinicPlacementStatus' => $value['H'],
+                'clinicEndDate' => $value['I'],
+                'clinicLifePlanDate' => $value['J'],
+                'clinicEskrDate' => $value['K'],
+                'clinicGuardianDate' => $value['L'],
+                'clinicAllowanceStatus' => $value['M']
+                // ... add more fields here as needed
+            ];
+    
             global $wpdb;
             $table_name = $wpdb->prefix . 'eb_patients';
             $wpdb->insert($table_name, $data_to_insert);
-
+    
             if ($wpdb->last_error !== '') {
                 $has_error = 1;
             }
         }
-
+    
         $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
         wp_redirect($redirect_url);
         exit;
     }
+    
 
     $template_path = plugin_dir_path(__FILE__) . 'src/views/wpdocs_render_import_patient.php';
     if (file_exists($template_path)) {
@@ -118,43 +134,43 @@ function wpdocs_render_add_patient()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            "first_name" => is_array($_POST['first_name']) ? json_encode($_POST['first_name']) : $_POST['first_name'],
-            "last_name" => is_array($_POST['last_name']) ? json_encode($_POST['last_name']) : $_POST['last_name'],
-            "tc_number" => is_array($_POST['tc_number']) ? json_encode($_POST['tc_number']) : $_POST['tc_number'],
-            "gender" => is_array($_POST['gender']) ? json_encode($_POST['gender']) : $_POST['gender'],
-            "date_of_birth" => is_array($_POST['date_of_birth']) ? json_encode($_POST['date_of_birth']) : $_POST['date_of_birth'],
-            "email" => is_array($_POST['email']) ? json_encode($_POST['email']) : $_POST['email'],
-            "phone" => is_array($_POST['phone']) ? json_encode($_POST['phone']) : $_POST['phone'],
-            "address" => is_array($_POST['address']) ? json_encode($_POST['address']) : $_POST['address'],
-            "street" => is_array($_POST['street']) ? json_encode($_POST['street']) : $_POST['street'],
-            "province" => is_array($_POST['province']) ? json_encode($_POST['province']) : $_POST['province'],
-            "city" => is_array($_POST['city']) ? json_encode($_POST['city']) : $_POST['city'],
-            "health_insurance" => is_array($_POST['health_insurance']) ? json_encode($_POST['health_insurance']) : $_POST['health_insurance'],
-            "arrival_date" => is_array($_POST['arrival_date']) ? json_encode($_POST['arrival_date']) : $_POST['arrival_date'],
-            "has_guardian" => is_array($_POST['has_guardian']) ? json_encode($_POST['has_guardian']) : $_POST['has_guardian'],
-            "guardian_name" => is_array($_POST['guardian_name']) ? json_encode($_POST['guardian_name']) : $_POST['guardian_name'],
-            "guardian_email" => is_array($_POST['guardian_email']) ? json_encode($_POST['guardian_email']) : $_POST['guardian_email'],
-            "guardian_number" => is_array($_POST['guardian_number']) ? json_encode($_POST['guardian_number']) : $_POST['guardian_number'],
-            "identification_sign" => is_array($_POST['identification_sign']) ? json_encode($_POST['identification_sign']) : $_POST['identification_sign'],
-            "suicide_risk" => is_array($_POST['suicide_risk']) ? json_encode($_POST['suicide_risk']) : $_POST['suicide_risk'],
+            "patientID" => $_POST['patientID'],
+            "patientFullName" => $_POST['patientFullName'],
+            "patientBirthDate" => $_POST['patientBirthDate'],
+            "patientTcNumber" => $_POST['patientTcNumber'],
+            "clinicAcceptanceDate" => $_POST['clinicAcceptanceDate'],
+            "clinicPlacementType" => $_POST['clinicPlacementType'],
+            "clinicPlacementStatus" => $_POST['clinicPlacementStatus'],
+            "clinicEndDate" => $_POST['clinicEndDate'],
+            "clinicLifePlanDate" => $_POST['clinicLifePlanDate'],
+            "clinicEskrDate" => $_POST['clinicEskrDate'],
+            "clinicGuardianDate" => $_POST['clinicGuardianDate'],
+            "clinicAllowanceStatus" => $_POST['clinicAllowanceStatus'],
+            // Add other field names here
         ];
+        
+        // Process the picture file if uploaded
         $picture_filename = '';
-        if (isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
+        if (isset($_FILES['patientImage']) && $_FILES['patientImage']['error'] === UPLOAD_ERR_OK) {
+           
             $upload_dir = wp_upload_dir();
             $target_dir = $upload_dir['path'] . '/images/';
-            $picture_filename = $target_dir . basename($_FILES['picture']['name']);
-            if (move_uploaded_file($_FILES['picture']['tmp_name'], $picture_filename)) {
-                $data['picture'] = basename($_FILES['picture']['name']);
+            $picture_filename = $target_dir . basename($_FILES['patientImage']['name']);
+            if (move_uploaded_file($_FILES['patientImage']['tmp_name'], $picture_filename)) {
+                $data['picture'] = basename($_FILES['patientImage']['name']);
             }
         }
+        
+        // Insert data into the database
         global $wpdb;
         $table_name = $wpdb->prefix . 'eb_patients';
         $wpdb->insert($table_name, $data);
-
+        
         $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
         wp_redirect($redirect_url);
         exit;
     }
+    
     $template_path = plugin_dir_path(__FILE__) . 'src/views/wpdocs_render_add_edit_patient.php';
     if (file_exists($template_path)) {
         include_once($template_path);
@@ -167,42 +183,39 @@ function wpdocs_render_edit_patient()
 {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = [
-            "first_name" => is_array($_POST['first_name']) ? json_encode($_POST['first_name']) : $_POST['first_name'],
-            "last_name" => is_array($_POST['last_name']) ? json_encode($_POST['last_name']) : $_POST['last_name'],
-            "tc_number" => is_array($_POST['tc_number']) ? json_encode($_POST['tc_number']) : $_POST['tc_number'],
-            "gender" => is_array($_POST['gender']) ? json_encode($_POST['gender']) : $_POST['gender'],
-            "date_of_birth" => is_array($_POST['date_of_birth']) ? json_encode($_POST['date_of_birth']) : $_POST['date_of_birth'],
-            "email" => is_array($_POST['email']) ? json_encode($_POST['email']) : $_POST['email'],
-            "phone" => is_array($_POST['phone']) ? json_encode($_POST['phone']) : $_POST['phone'],
-            "address" => is_array($_POST['address']) ? json_encode($_POST['address']) : $_POST['address'],
-            "street" => is_array($_POST['street']) ? json_encode($_POST['street']) : $_POST['street'],
-            "province" => is_array($_POST['province']) ? json_encode($_POST['province']) : $_POST['province'],
-            "city" => is_array($_POST['city']) ? json_encode($_POST['city']) : $_POST['city'],
-            "health_insurance" => is_array($_POST['health_insurance']) ? json_encode($_POST['health_insurance']) : $_POST['health_insurance'],
-            "arrival_date" => is_array($_POST['arrival_date']) ? json_encode($_POST['arrival_date']) : $_POST['arrival_date'],
-            "has_guardian" => is_array($_POST['has_guardian']) ? json_encode($_POST['has_guardian']) : $_POST['has_guardian'],
-            "guardian_name" => is_array($_POST['guardian_name']) ? json_encode($_POST['guardian_name']) : $_POST['guardian_name'],
-            "guardian_email" => is_array($_POST['guardian_email']) ? json_encode($_POST['guardian_email']) : $_POST['guardian_email'],
-            "guardian_number" => is_array($_POST['guardian_number']) ? json_encode($_POST['guardian_number']) : $_POST['guardian_number'],
-            "identification_sign" => is_array($_POST['identification_sign']) ? json_encode($_POST['identification_sign']) : $_POST['identification_sign'],
-            "suicide_risk" => is_array($_POST['suicide_risk']) ? json_encode($_POST['suicide_risk']) : $_POST['suicide_risk'],
+            "patientID" => $_POST['patientID'],
+            "patientFullName" => $_POST['patientFullName'],
+            "patientBirthDate" => $_POST['patientBirthDate'],
+            "patientTcNumber" => $_POST['patientTcNumber'],
+            "clinicAcceptanceDate" => $_POST['clinicAcceptanceDate'],
+            "clinicPlacementType" => $_POST['clinicPlacementType'],
+            "clinicPlacementStatus" => $_POST['clinicPlacementStatus'],
+            "clinicEndDate" => $_POST['clinicEndDate'],
+            "clinicLifePlanDate" => $_POST['clinicLifePlanDate'],
+            "clinicEskrDate" => $_POST['clinicEskrDate'],
+            "clinicGuardianDate" => $_POST['clinicGuardianDate'],
+            "clinicAllowanceStatus" => $_POST['clinicAllowanceStatus'],
+            // Add other field names here
         ];
+    
+        // Handle picture upload
         $picture_filename = '';
-        if (isset($_FILES['picture']) && $_FILES['picture']['error'] === UPLOAD_ERR_OK) {
+        if (isset($_FILES['patientImage']) && $_FILES['patientImage']['error'] === UPLOAD_ERR_OK) {
             $upload_dir = wp_upload_dir();
             $target_dir = $upload_dir['path'] . '/images/';
-            $picture_filename = $target_dir . basename($_FILES['picture']['name']);
-            if (move_uploaded_file($_FILES['picture']['tmp_name'], $picture_filename)) {
-                $data['picture'] = basename($_FILES['picture']['name']);
+            $picture_filename = $target_dir . basename($_FILES['patientImage']['name']);
+            if (move_uploaded_file($_FILES['patientImage']['tmp_name'], $picture_filename)) {
+                $data['patientImage'] = basename($_FILES['patientImage']['name']);
             }
         }
-        global $wpdb;
-        $patient_id = intval($_POST['id']); // Sanitize and convert to integer
+    
         // Update data in the database
+        $patient_id = intval($_POST['id']); // Sanitize and convert to integer
         global $wpdb;
         $table_name = $wpdb->prefix . 'eb_patients';
         $wpdb->update($table_name, $data, ['id' => $patient_id]);
     }
+    
 
     // Redirect back to the list patient page after deletion
     $redirect_url = admin_url('admin.php?page=ebakim-list-patient');
