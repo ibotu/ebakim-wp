@@ -42,6 +42,9 @@ wp-config.php
 # uncomment the next line
 #/wp-content/plugins
 
+# All vendor files
+#/src/vendor
+
 # All themes
 #
 # Note: If you wish to whitelist themes,
