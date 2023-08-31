@@ -160,18 +160,18 @@ if (isset($_GET['id'])) {
         };
 
         const validationMessages = {
-            patientID: 'Invalid format for Patient ID. Use letters, numbers, underscores, and hyphens.',
-            patientFullName: 'Please enter a valid full name.',
-            patientBirthDate: 'Please enter a valid birthdate in the format YYYY-MM-DD.',
-            patientTcNumber: 'Please enter a valid T.C. number.',
-            clinicAcceptanceDate: 'Please enter a valid clinic acceptance date in the format YYYY-MM-DD.',
-            clinicPlacementType: 'Please enter a valid clinic placement type.',
-            clinicPlacementStatus: 'Please enter a valid clinic placement status.',
-            clinicEndDate: 'Please enter a valid clinic end date in the format YYYY-MM-DD.',
-            clinicLifePlanDate: 'Please enter a valid clinic life plan date in the format YYYY-MM-DD.',
-            clinicEskrDate: 'Please enter a valid clinic ESKR date in the format YYYY-MM-DD.',
-            clinicGuardianDate: 'Please enter a valid clinic guardian date in the format YYYY-MM-DD.',
-            clinicAllowanceStatus: 'Please enter a valid clinic allowance status.',
+            patientID: '<?php echo __('Invalid format for Patient ID. Use letters, numbers, underscores, and hyphens.', 'ebakim-wp'); ?>',
+            patientFullName: '<?php echo __('Please enter a valid full name.', 'ebakim-wp'); ?>',
+            patientBirthDate: '<?php echo __('Please enter a valid birthdate in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            patientTcNumber: '<?php echo __('Please enter a valid T.C. number.', 'ebakim-wp'); ?>',
+            clinicAcceptanceDate: '<?php echo __('Please enter a valid clinic acceptance date in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            clinicPlacementType: '<?php echo __('Please enter a valid clinic placement type.', 'ebakim-wp'); ?>',
+            clinicPlacementStatus: '<?php echo __('Please enter a valid clinic placement status.', 'ebakim-wp'); ?>',
+            clinicEndDate: '<?php echo __('Please enter a valid clinic end date in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            clinicLifePlanDate: '<?php echo __('Please enter a valid clinic life plan date in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            clinicEskrDate: '<?php echo __('Please enter a valid clinic ESKR date in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            clinicGuardianDate: '<?php echo __('Please enter a valid clinic guardian date in the format YYYY-MM-DD.', 'ebakim-wp'); ?>',
+            clinicAllowanceStatus: '<?php echo __('Please enter a valid clinic allowance status.', 'ebakim-wp'); ?>',
         };
 
         $('input[name]').keyup(function() {

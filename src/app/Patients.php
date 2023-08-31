@@ -23,6 +23,8 @@ class Patients
         'clinicEskrDate' => null,
         'clinicGuardianDate' => null,
         'clinicAllowanceStatus' => null,
+        'sso_details' => null,
+        'healthcare_details' => null,
         // Add other field names here
     ];
 
@@ -49,6 +51,8 @@ class Patients
             `clinicLifePlanDate` datetime,
             `clinicEskrDate` datetime,
             `clinicGuardianDate` datetime,
+            `sso_details` text,
+            `healthcare_details` text,
             `clinicAllowanceStatus` varchar(250),
             `picture` text,
             primary key(`id`)
