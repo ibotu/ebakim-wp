@@ -1,1 +1,1 @@
-composer require bacon/bacon-qr-code
+Run "composer install" inside plugin/src directory.
