@@ -11,6 +11,27 @@ function dd($data)
   die();
 }
 
+function projectRoot($path = '')
+{
+  $current_file_path = dirname(__FILE__);
+  $wp_root_path = false;
+
+  while (!$wp_root_path && '/' !== $current_file_path) {
+    if (file_exists($current_file_path . '/wp-load.php')) {
+      $wp_root_path = $current_file_path;
+    }
+    $current_file_path = dirname($current_file_path);
+  }
+
+  if ($wp_root_path) {
+    // $wp_root_path now contains the path to the WordPress root directory.
+    return $wp_root_path . $path;
+  } else {
+    // WordPress not found, handle the error.
+    return "WordPress root not found.";
+  }
+}
+
 function patient_fields()
 {
   $sample_columns = [
@@ -21,41 +42,45 @@ function patient_fields()
   return $sample_columns;
 }
 
-function get_flash_error_cookie() {
+function get_flash_error_cookie()
+{
   if (isset($_COOKIE['flash_error'])) {
-      $message = $_COOKIE['flash_error'];
-      
-      // Clear the cookie immediately to prevent further display
-      unset($_COOKIE['flash_error']);
-      setcookie('flash_error', '', time() - 3600, '/');
-      
-      return $message;
+    $message = $_COOKIE['flash_error'];
+
+    // Clear the cookie immediately to prevent further display
+    unset($_COOKIE['flash_error']);
+    setcookie('flash_error', '', time() - 3600, '/');
+
+    return $message;
   }
   return false;
 }
 
 
 
-function set_flash_error_cookie($message) {
+function set_flash_error_cookie($message)
+{
   // Set a session-like cookie with an expiration time (e.g., 1 minute)
   setcookie('flash_error', $message, time() + 60, '/');
 }
 
-function redirect_back() {
+function redirect_back()
+{
   $referer = wp_get_referer();
-  
+
   // Make sure the referer is not empty and is a safe URL
   if ($referer && wp_validate_redirect($referer, home_url())) {
-      wp_safe_redirect($referer);
+    wp_safe_redirect($referer);
   } else {
-      // If referer is empty or not safe, redirect to home page
-      wp_safe_redirect(home_url());
+    // If referer is empty or not safe, redirect to home page
+    wp_safe_redirect(home_url());
   }
-  
+
   exit();
 }
 
-function redirect_to_login_and_logout() {
+function redirect_to_login_and_logout()
+{
   wp_logout();
   wp_redirect(wp_login_url());
   exit();

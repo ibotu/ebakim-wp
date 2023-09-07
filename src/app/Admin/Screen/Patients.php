@@ -1,10 +1,7 @@
 <?php
-
 namespace Zorgportal\Admin\Screen;
-
 use Zorgportal\Patients as Core;
 use Zorgportal\App;
-
 class Patients extends Screen
 {
     public function init()
@@ -14,7 +11,6 @@ class Patients extends Screen
             if ( in_array($status=intval($_GET['status'] ?? ''), Invoices::PAYMENT_STATUSES) ) {
                 global $wpdb;
                 $table = $wpdb->prefix . App::INVOICES_TABLE;
-        
                 switch ( $status ) {
                     case Invoices::PAYMENT_STATUS_PAID:
                         $sql .= $wpdb->prepare(" and id in ( select `DeclaratieDebiteurnummer` from {$table} ) and id not in (
@@ -35,7 +31,6 @@ class Patients extends Screen
                         break;
                 }
             }
-
             return $sql;
         });
     }
@@ -73,7 +68,6 @@ class Patients extends Screen
                         return $invoice['EoStatus'];
                     }
                 }
-
                 return null;
             },
         ]));
@@ -85,7 +79,6 @@ class Patients extends Screen
         wp_enqueue_style( 'zportal-codes', "{$base}src/assets/codes.css", [], $this->appContext::SCRIPTS_VERSION );
         wp_enqueue_script( 'zportal-codes', "{$base}src/assets/codes.js", ['jquery'], $this->appContext::SCRIPTS_VERSION, 1 );
     }
-
     public function update()
     {
         if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'zorgportal' ) )
