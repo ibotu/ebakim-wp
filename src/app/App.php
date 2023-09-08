@@ -24,13 +24,15 @@ function wpdocs_render_list_patient()
 
 function my_plugin_load_textdomain()
 {
-    $translation_file = dirname(plugin_basename(__FILE__)) . '/languages/';
-    $loaded = load_plugin_textdomain('ebakim-wp', false, $translation_file);
-
+    $translation_file = dirname(dirname(dirname(plugin_basename(__FILE__)))) . '/languages/';
+	$loaded = load_plugin_textdomain('ebakim-wp', false, $translation_file);
     if ($loaded) {
+        // Translation domain loaded successfully.
         // dd('Translation domain loaded successfully.');
     } else {
-        // dd('Translation domain failed to load. File: ' . $translation_file);
+        // Translation domain failed to load.
+        // $error_message = 'Translation domain failed to load. File: ' . $translation_file;
+        // wp_die($error_message, 'Translation Domain Error');
     }
 }
 
@@ -564,11 +566,9 @@ add_action('admin_post_ebakim_add_healthcare', 'wpdocs_render_ebakim_add_healthc
 
 
 
-function enqueue_custom_admin_css() {
-    
-    wp_enqueue_style('custom-admin-css', plugins_url('../assets/custom-css-file-master.css', __FILE__));
+function enqueue_custom_admin_css()
+{
 
+    wp_enqueue_style('custom-admin-css', plugins_url('../assets/custom-css-file-master.css', __FILE__));
 }
 add_action('admin_enqueue_scripts', 'enqueue_custom_admin_css');
-
-
