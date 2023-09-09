@@ -12,6 +12,15 @@ require_once dirname(plugin_dir_path(__FILE__)) . '/utils/PHPGangsta/GoogleAuthe
 
 
 
+function wpdocs_render_patient()
+{
+    $template_path = dirname(plugin_dir_path(__FILE__)) . '/templates/views/wpdocs_render_patient.php';
+    if (file_exists($template_path)) {
+        include_once($template_path);
+    } else {
+        echo 'Template file not found.';
+    }
+}
 function wpdocs_render_list_patient()
 {
     $template_path = dirname(plugin_dir_path(__FILE__)) . '/templates/views/wpdocs_render_list_patient.php';
@@ -25,7 +34,7 @@ function wpdocs_render_list_patient()
 function my_plugin_load_textdomain()
 {
     $translation_file = dirname(dirname(dirname(plugin_basename(__FILE__)))) . '/languages/';
-	$loaded = load_plugin_textdomain('ebakim-wp', false, $translation_file);
+    $loaded = load_plugin_textdomain('ebakim-wp', false, $translation_file);
     if ($loaded) {
         // Translation domain loaded successfully.
         // dd('Translation domain loaded successfully.');
@@ -224,13 +233,13 @@ function wpdocs_render_delete_patient()
 
 function main()
 {
-
-    global $wpdb;
-    $table = $wpdb->prefix . 'eb_patients';
-
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-    dbDelta("CREATE TABLE IF NOT EXISTS {$table} (
+
+    global $wpdb;
+
+
+    dbDelta("CREATE TABLE IF NOT EXISTS {($wpdb->prefix . 'eb_patients')} (
         `id` bigint(20) unsigned not null auto_increment,
         `_created` datetime,
         `_edited` datetime,
@@ -254,45 +263,110 @@ function main()
     ) {$wpdb->get_charset_collate()};");
 
 
+    dbDelta("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}eb_health_finding (
+        `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        `history` varchar(250),             -- History field
+        `moment` varchar(250),             -- Moment field
+        `fever` varchar(250),              -- Fever °C field
+        `nabiz` varchar(250),              -- Nabiz field
+        `blood_pressure` varchar(250),     -- High/Low Blood Pressure field
+        `spo2` varchar(250),               -- SPO2% field
+        `health_personnel` varchar(250),   -- Health personnel field
+        PRIMARY KEY (`id`)
+    ) {$wpdb->get_charset_collate()};");
 
+
+
+
+
+
+
+
+
+    // Create the main "eBakim" menu item
     add_menu_page(
-        __('eBakim ', 'ebakim-wp'),        // Sidebar menu title
-        __('eBakim', 'ebakim-wp'),          // Actual page title
+        __('eBakim', 'ebakim-wp'),      // Main menu title
+        __('eBakim', 'ebakim-wp'),      // Actual page title
         'manage_options',               // Required capability to access the menu
-        'ebakim',                       // Menu slug
-        'wpdocs_render_list_patient',   // Callback function to render the page
+        'ebakim-main',                  // Menu slug
+        'wpdocs_render_main_patients',  // Callback function to render the main page
         'dashicons-admin-plugins',      // Dashicon for the menu
         6                               // Menu position
     );
 
+    // Add modules under "eBakim"
     add_submenu_page(
-        'ebakim',                        // Parent menu slug
-        __('List Patient', 'ebakim-wp'),    // Submenu page title
-        __('List Patient', 'ebakim-wp'),    // Submenu menu title
+        'ebakim-main',                   // Parent menu slug
+        __('Patients', 'ebakim-wp'),    // Submenu page title
+        __('Patients', 'ebakim-wp'),    // Submenu menu title
         'manage_options',                // Required capability to access the submenu
-        'ebakim-list-patient',           // Submenu slug
-        'wpdocs_render_list_patient'     // Callback function to render the submenu page
+        'ebakim-patients',               // Submenu slug
+        'wpdocs_render_patient'     // Callback function to render the submodule
     );
 
     add_submenu_page(
-        'ebakim',                        // Parent menu slug
-        __('New Patient', 'ebakim-wp'),     // Submenu page title
-        __('New Patient', 'ebakim-wp'),     // Submenu menu title
+        'ebakim-main',                   // Parent menu slug
+        __('Groups', 'ebakim-wp'),      // Submenu page title
+        __('Groups', 'ebakim-wp'),      // Submenu menu title
         'manage_options',                // Required capability to access the submenu
+        'ebakim-groups',                 // Submenu slug
+        'wpdocs_render_groups'           // Callback function to render the submodule
+    );
+
+    add_submenu_page(
+        'ebakim-main',                   // Parent menu slug
+        __('Employee', 'ebakim-wp'),    // Submenu page title
+        __('Employee', 'ebakim-wp'),    // Submenu menu title
+        'manage_options',                // Required capability to access the submenu
+        'ebakim-employee',               // Submenu slug
+        'wpdocs_render_employee'         // Callback function to render the submodule
+    );
+
+    add_submenu_page(
+        'ebakim-main',                   // Parent menu slug
+        __('Payments', 'ebakim-wp'),    // Submenu page title
+        __('Payments', 'ebakim-wp'),    // Submenu menu title
+        'manage_options',                // Required capability to access the submenu
+        'ebakim-payments',               // Submenu slug
+        'wpdocs_render_payments'         // Callback function to render the submodule
+    );
+
+    add_submenu_page(
+        'ebakim-main',                   // Parent menu slug
+        __('Transitions', 'ebakim-wp'), // Submenu page title
+        __('Transitions', 'ebakim-wp'), // Submenu menu title
+        'manage_options',                // Required capability to access the submenu
+        'ebakim-transitions',            // Submenu slug
+        'wpdocs_render_transitions'      // Callback function to render the submodule
+    );
+
+    // Add child submenu items under "Patients"
+    add_submenu_page(
+        'ebakim-patients',                // Parent menu slug
+        __('List Patient', 'ebakim-wp'),  // Submenu page title
+        __('List Patient', 'ebakim-wp'),  // Submenu menu title
+        'manage_options',                 // Required capability to access the submenu
+        'ebakim-list-patient',            // Submenu slug
+        'wpdocs_render_list_patient'      // Callback function to render the submenu
+    );
+
+    add_submenu_page(
+        'ebakim-patients',                // Parent menu slug
+        __('New Patient', 'ebakim-wp'),   // Submenu page title
+        __('New Patient', 'ebakim-wp'),   // Submenu menu title
+        'manage_options',                 // Required capability to access the submenu
         'ebakim-add-patient',            // Submenu slug
-        'wpdocs_render_add_patient' // Callback function to render the submenu page
+        'wpdocs_render_add_patient'       // Callback function to render the submenu
     );
 
     add_submenu_page(
-        'ebakim',                        // Parent menu slug
-        __('Import Patient', 'ebakim-wp'),     // Submenu page title
-        __('Import Patient', 'ebakim-wp'),     // Submenu menu title
-        'manage_options',                // Required capability to access the submenu
-        'ebakim-import-patient',            // Submenu slug
-        'wpdocs_render_import_patient' // Callback function to render the submenu page
+        'ebakim-patients',                // Parent menu slug
+        __('Import Patient', 'ebakim-wp'), // Submenu page title
+        __('Import Patient', 'ebakim-wp'), // Submenu menu title
+        'manage_options',                 // Required capability to access the submenu
+        'ebakim-import-patient',         // Submenu slug
+        'wpdocs_render_import_patient'    // Callback function to render the submenu
     );
-
-
     add_submenu_page(
         'ebakim',                        // Parent menu slug
         __('Add SSO', 'ebakim-wp'),      // Submenu page title
@@ -311,8 +385,18 @@ function main()
         'wpdocs_render_ebakim_add_healthcare'  // Callback function to render the submenu page
     );
 
+    add_submenu_page(
+        'ebakim-patients',                // Parent menu slug
+        __('Health Finding Form', 'ebakim-wp'),  // Submenu page title
+        __('Health Finding Form', 'ebakim-wp'),  // Submenu menu title
+        'manage_options',                 // Required capability to access the submenu
+        'ebakim-health-finding-follow-up-form',            // Submenu slug
+        'wpdocs_render_health_finding_follow_up_form'      // Callback function to render the submenu
+    );
 
-    remove_submenu_page('ebakim', 'ebakim');
+
+
+    remove_submenu_page('ebakim-main', 'ebakim-main');
 }
 
 
@@ -468,6 +552,51 @@ add_action('wp_logout', 'custom_logout_action');
 
 
 
+function wpdocs_render_health_finding_follow_up_form()
+{
+    global $wpdb;
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        unset($_POST['action']);
+
+        // Define the table name
+        $table_name = $wpdb->prefix . 'eb_health_finding';
+
+        // Prepare the data to be inserted
+        $data_to_insert = array(
+            'history' => sanitize_text_field($_POST['history']),
+            'moment' => sanitize_text_field($_POST['moment']),
+            'fever' => sanitize_text_field($_POST['fever']),
+            'nabiz' => sanitize_text_field($_POST['nabiz']),
+            'blood_pressure' => sanitize_text_field($_POST['blood_pressure']),
+            'spo2' => sanitize_text_field($_POST['spo2']),
+            'health_personnel' => sanitize_text_field($_POST['health_personnel']),
+        );
+
+        $wpdb->insert($table_name, $data_to_insert);
+
+        // Check if the insertion was successful
+        if ($wpdb->last_error) {
+            // Handle the error, if any
+
+            dd("Error: " . $wpdb->last_error);
+        } else {
+            $redirect_url = admin_url('admin.php?page=ebakim-health-finding-follow-up-form');
+            wp_redirect($redirect_url);
+        }
+    }
+
+
+    $template_path = dirname(plugin_dir_path(__FILE__)) . '/templates/views/wpdocs_render_health_finding_follow_up_form.php';
+    if (file_exists($template_path)) {
+        include_once($template_path);
+    } else {
+        echo 'SSO Form template file not found.';
+    }
+}
+
+
+
 
 
 
@@ -515,18 +644,15 @@ function wpdocs_render_ebakim_add_sso()
     }
 }
 
+
 function wpdocs_render_ebakim_add_healthcare()
 {
     global $wpdb;
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-        $patient_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-        unset($_POST['id']);
         unset($_POST['action']);
-        unset($_POST['submit']);
 
-        $table_name = $wpdb->prefix . 'eb_patients';
+        $table_name = $wpdb->prefix . 'eb_health_finding';
 
         // Serialize the data to store in the healthcare_details column
         $serialized_data = maybe_serialize(($_POST));
@@ -563,6 +689,7 @@ function wpdocs_render_ebakim_add_healthcare()
 
 add_action('admin_post_ebakim_add_sso', 'wpdocs_render_ebakim_add_sso');
 add_action('admin_post_ebakim_add_healthcare', 'wpdocs_render_ebakim_add_healthcare');
+add_action('admin_post_ebakim_add_health_finding_follow_up_form', 'wpdocs_render_health_finding_follow_up_form');
 
 
 
