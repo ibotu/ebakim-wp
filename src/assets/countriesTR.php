@@ -1,5 +1,5 @@
 <?php
-// Türkçe Ülke AD ve Kodları (Array)
+// Turkish Country Names and Codes (Array)
 $countries = array(
 	'TR' => 'Türkiye',
 	'VI' => 'ABD Virgin Adaları',
