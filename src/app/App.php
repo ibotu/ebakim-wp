@@ -214,6 +214,23 @@ function wpdocs_render_edit_patient()
     exit; // Always exit after a redirect
 }
 
+function wpdocs_render_delete_patient_health_finding()
+{
+    if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+        $id = intval($_GET['id']);
+
+        // Perform the deletion operation
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'eb_health_finding';
+
+        $wpdb->delete($table_name, array('id' => $id));
+
+        // Redirect back to the list patient page after deletion
+        $redirect_url = admin_url('admin.php?page=ebakim-health-finding-follow-up-form');
+        wp_redirect($redirect_url);
+        exit; // Always exit after a redirect
+    }
+}
 function wpdocs_render_delete_patient()
 {
     if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -400,13 +417,17 @@ function main()
 }
 
 
-
+add_action('show_user_profile', 'my_custom_profile_image_field');
+add_action('edit_user_profile', 'my_custom_profile_image_field');
+add_action('personal_options_update', 'save_my_custom_profile_image_field');
+add_action('edit_user_profile_update', 'save_my_custom_profile_image_field');
 
 add_action('plugins_loaded', 'my_plugin_load_textdomain');
 add_action('admin_menu', 'main');
 add_action('admin_post_add_patient', 'wpdocs_render_add_patient');
 add_action('admin_post_edit_patient', 'wpdocs_render_edit_patient');
 add_action('admin_post_delete_patient', 'wpdocs_render_delete_patient');
+add_action('admin_post_delete_patient_health_finding', 'wpdocs_render_delete_patient_health_finding');
 add_action('admin_post_import_patients', 'wpdocs_render_import_patient');
 
 
@@ -699,3 +720,267 @@ function enqueue_custom_admin_css()
     wp_enqueue_style('custom-admin-css', plugins_url('../assets/custom-css-file-master.css', __FILE__));
 }
 add_action('admin_enqueue_scripts', 'enqueue_custom_admin_css');
+
+function enqueue_custom_admin_scripts()
+{
+    // Enqueue your JavaScript file
+    wp_enqueue_script('hammad-js', plugins_url('../assets/load_js.js', __FILE__), array('jquery'), '1.0', true);
+}
+
+add_action('admin_enqueue_scripts', 'enqueue_custom_admin_scripts');
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to add the image upload field to the user profile
+function my_custom_profile_image_field($user)
+{
+?>
+    <h3><?php esc_html_e('Logo', 'ebakim-wp'); ?></h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="custom_logo"><?php esc_html_e('Health Findings Follow-up Form', 'ebakim-wp'); ?></label></th>
+            <td>
+                <input type="file" id="custom_logo" name="custom_logo" accept="image/*" />
+                <br />
+                <?php
+                $custom_logo = get_user_meta($user->ID, 'custom_logo', true);
+                if ($custom_logo) {
+                    echo '<img src="' . esc_url($custom_logo) . '" style="max-width: 100px;" /><br />';
+                    echo '<span class="description">' . esc_html_e('Current logo:', 'ebakim-wp') . '</span>';
+                }
+                ?>
+            </td>
+        </tr>
+    </table>
+<?php
+}
+
+// Function to save the uploaded image as user_meta
+function save_my_custom_profile_image_field($user_id)
+{
+    if (current_user_can('edit_user', $user_id)) {
+
+        $custom_logo = $_FILES['custom_logo'];
+
+        if (!empty($custom_logo['name'])) {
+            $upload_overrides = array('test_form' => false);
+            $upload_result = wp_handle_upload($custom_logo, $upload_overrides);
+
+            if (!empty($upload_result['url'])) {
+                update_user_meta($user_id, 'custom_logo', $upload_result['url']);
+            }
+        }
+    }
+}
+
+// Add actions for displaying and saving the image field
+add_action('show_user_profile', 'my_custom_profile_image_field');
+add_action('edit_user_profile', 'my_custom_profile_image_field');
+add_action('personal_options_update', 'save_my_custom_profile_image_field');
+add_action('edit_user_profile_update', 'save_my_custom_profile_image_field');
+
+
+
+function enqueue_jquery()
+{
+    wp_enqueue_script('jquery');
+}
+
+add_action('wp_enqueue_scripts', 'enqueue_jquery');
+
+
+function download_healthcare_all_pdf()
+{
+
+
+    global $wpdb;
+    $health_finding = $wpdb->prefix . 'eb_health_finding';
+    $data = $wpdb->get_results("
+        SELECT {$health_finding}.id AS health_finding_id, wp_eb_patients.id AS patient_id, {$health_finding}.*, wp_eb_patients.*
+        FROM {$health_finding}
+        INNER JOIN wp_eb_patients ON {$health_finding}.health_personnel = wp_eb_patients.id
+    ", ARRAY_A);
+
+
+
+    $custom_logo_url = get_user_meta(get_current_user_id(), 'custom_logo', true);
+    if (!empty($custom_logo_url)) {
+        $logo = '<img width="120px" height="100px" src="' . esc_url($custom_logo_url) . '" alt="Custom Profile Image" />';
+    } else {
+        $default_image_url = plugins_url('/ebakim-wp/src/assets/images/default.png');
+        $logo = '<img width="120px" height="100px" src="' . esc_url($default_image_url) . '" alt="Default Profile Image" />';
+    }
+
+    $html = ' 
+<table style="border-collapse:collapse;margin-left:5.57pt; font-family:Calibri, sans-serif; width:100%;" cellspacing="0">
+    <tr style="height:14pt ">
+        <td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            rowspan="4">
+           ' . $logo . '
+              
+        </td>
+        <td style="width:288pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            rowspan="4">
+            <p class="s1" style="padding-left: 20pt;text-indent: 0pt;text-align: left;"> ' . __(' Health Findings Follow-up Form', 'ebakim-wp') . '
+            </p>
+        </td>
+        <td
+            style="width:110pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">' . __('Document code', 'ebakim-wp') . '</p>
+        </td>
+        <td
+            style="width:64pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">FRM.27</p>
+        </td>
+    </tr>
+    <tr style="height:14pt">
+        <td
+            style="width:110pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">' . __('Release date', 'ebakim-wp') . '</p>
+        </td>
+        <td
+            style="width:64pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">01.03.2021
+            </p>
+        </td>
+    </tr>
+    <tr style="height:14pt">
+        <td
+            style="width:110pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">' . __('Revision date', 'ebakim-wp') . '</p>
+        </td>
+        <td
+            style="width:64pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">--</p>
+        </td>
+    </tr>
+    <tr style="height:14pt">
+        <td
+            style="width:110pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">' . __('Revision Number', 'ebakim-wp') . '</p>
+        </td>
+        <td
+            style="width:64pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p class="s2" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;">00</p>
+        </td>
+    </tr>
+</table>
+<p style="padding-top: 5pt;padding-left: 5pt;text-indent: 0pt;text-align: left;"><span style=" color: black;  font-style: normal; font-weight: bold; text-decoration: none; font-size: 12pt;">' . __('Name and Surname of the Patients', 'ebakim-wp') . '</span>: ' . reset($data)['patientFullName'] . '</p>
+
+<table style="border-collapse:collapse;margin-left:5.57pt " cellspacing="0">
+    <tr style="height:38pt">
+        <td style=" text-align:center; padding:5px; width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+              <b><p class="s3" style="padding-left: 26pt;padding-right: 25pt;text-indent: 0pt;text-align: center;">' . __('History', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+         
+             <b><p class="s3" style="padding-left: 14pt;text-indent: 0pt;text-align: left;">' . __('Moment', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:56pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+              <b><p class="s3" style="padding-left: 18pt;text-indent: 0pt;text-align: left;">' . __('Fever °C', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+              <b><p class="s3" style="padding-left: 15pt;text-indent: 0pt;text-align: left;">' . __('Pulse', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:106pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+              <b><p class="s3" style="padding-left: 32pt;text-indent: 0pt;text-align: left;">' . __('Blood pressure', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <p style="text-indent: 0pt;text-align: left;"><br /></p>
+              <b><p class="s3" style="padding-left: 12pt;text-indent: 0pt;text-align: left;">' . __('SPO2', 'ebakim-wp') . '</p></b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:149pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+            bgcolor="#C2D69B">
+            <b>   <p class="s3"
+            style="padding-top: 5pt;padding-left: 35pt;padding-right: 24pt;text-indent: 2pt;text-align: left;">' . __('Name and Surname of Health Personnel / Signature', 'ebakim-wp') . '</p></b>
+        </td>
+    </tr>';
+
+
+    foreach ($data as $k => $v) {
+        $html .= '
+        <tr style="height:21pt; ">
+        <td
+            style=" text-align:center; padding:5px; width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['history'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['moment'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:56pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['fever'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:57pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['nabiz'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:106pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['blood_pressure'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:49pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['spo2'] . '</p>
+        </td>
+        <td
+            style=" text-align:center; padding:5px; width:149pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <p style="text-indent: 0pt;text-align: left;">' . $v['patientFullName'] . '</p>
+        </td>
+    </tr>';
+    }
+
+    $html .= '
+    </table>';
+
+
+
+
+
+
+
+    // Include mPDF library
+    require_once dirname(plugin_dir_path(__FILE__)) . '\..\vendor\autoload.php';
+
+    // Create a new mPDF instance
+    $mpdf = new \Mpdf\Mpdf();
+
+
+    // Convert HTML to PDF
+    $mpdf->WriteHTML($html);
+
+// Set the Content-Disposition header to force download
+header('Content-Disposition: attachment; filename="healthcare_report.pdf"');
+
+// Add this line to set the Content-Type header for download
+header('Content-Type: application/pdf');
+
+// Output the PDF to the browser
+$mpdf->Output();
+exit; // Make sure to exit after sending the PDF
+}
+
+
+
+add_action('wp_ajax_download_healthcare_all_pdf', 'download_healthcare_all_pdf');

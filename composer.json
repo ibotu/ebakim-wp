@@ -2,6 +2,6 @@
     "require": {
         "bacon/bacon-qr-code": "^2.0",
         "endroid/qr-code": "^4.6",
-        "spomky-labs/otphp": "^11.2"
+        "mpdf/mpdf": "^8.2"
     }
 }

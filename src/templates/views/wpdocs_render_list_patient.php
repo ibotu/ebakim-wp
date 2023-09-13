@@ -27,6 +27,7 @@ $patient_data = $wpdb->get_results("SELECT * FROM $eb_patients");
     <table class="wp-list-table widefat plugins this_datatable">
         <thead class="dark">
             <tr>
+                <th scope="col" class="manage-column column-patientID">#</th>
                 <th scope="col" class="manage-column column-patientID"><?php _e('Patient ID', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientFullName"><?php _e('Patient Full Name', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientBirthDate"><?php _e('Patient Birth Date', 'ebakim-wp'); ?></th>
@@ -38,6 +39,7 @@ $patient_data = $wpdb->get_results("SELECT * FROM $eb_patients");
         <tbody>
             <?php foreach ($patient_data as $k => $v) { ?>
                 <tr>
+                    <td class="name"><strong><?= $k+1 ?></strong></td>
                     <td class="name column-<?= $v->patientID ?>"><strong><?= $v->patientID ?></strong></td>
                     <td class="name column-<?= $v->patientFullName ?>"><strong><?= $v->patientFullName ?></strong></td>
                     <td class="name column-<?= $v->patientBirthDate ?>"><strong><?= ($v->patientBirthDate == '0000-00-00 00:00:00') ? '-' : $v->patientBirthDate ?></strong></td>

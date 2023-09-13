@@ -4,10 +4,10 @@ $current_file_path = dirname(__FILE__);
 $wp_root_path = false;
 
 while (!$wp_root_path && '/' !== $current_file_path) {
-    if (file_exists($current_file_path . '/wp-load.php')) {
-        $wp_root_path = $current_file_path;
-    }
-    $current_file_path = dirname($current_file_path);
+	if (file_exists($current_file_path . '/wp-load.php')) {
+		$wp_root_path = $current_file_path;
+	}
+	$current_file_path = dirname($current_file_path);
 }
 
 require_once  $wp_root_path . '/wp-load.php';
@@ -18,11 +18,11 @@ require_once  $wp_root_path . '/wp-load.php';
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Two Factor Authentication &lsaquo; eBakim &#8212; WordPress</title>
 	<meta name='robots' content='max-image-preview:large, noindex, noarchive' />
-	<!-- <link rel='stylesheet' id='dashicons-css' href='http://localhost/wordpress_6.3/wp-includes/css/dashicons.min.css?ver=6.3' media='all' /> -->
-	<link rel='stylesheet' id='buttons-css' href='http://localhost/wordpress_6.3/wp-includes/css/buttons.min.css?ver=6.3' media='all' />
-	<link rel='stylesheet' id='forms-css' href='http://localhost/wordpress_6.3/wp-admin/css/forms.min.css?ver=6.3' media='all' />
-	<!-- <link rel='stylesheet' id='l10n-css' href='http://localhost/wordpress_6.3/wp-admin/css/l10n.min.css?ver=6.3' media='all' /> -->
-	<link rel='stylesheet' id='login-css' href='http://localhost/wordpress_6.3/wp-admin/css/login.min.css?ver=6.3' media='all' />
+	<link rel='stylesheet' id='buttons-css' href='buttons.min.css' media='all' />
+	<link rel='stylesheet' id='forms-css' href='forms.min.css' media='all' />
+	<link rel='stylesheet' id='login-css' href='login.min.css' media='all' />
+
+	<style></style>
 	<meta name='referrer' content='strict-origin-when-cross-origin' />
 	<meta name="viewport" content="width=device-width" />
 	<style>
@@ -55,7 +55,7 @@ require_once  $wp_root_path . '/wp-load.php';
 		<?php
 		$flash_error = get_flash_error_cookie();
 		if ($flash_error) {
-			echo '<div id="login_error"> <strong>Error:</strong> '. esc_html($flash_error) .'.<br></div>';
+			echo '<div id="login_error"> <strong>Error:</strong> ' . esc_html($flash_error) . '.<br></div>';
 		}
 		?>
 

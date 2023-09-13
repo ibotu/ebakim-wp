@@ -1,11 +1,12 @@
 <?php defined('WPINC') || exit; ?>
-<?php include((dirname(__FILE__) . '/../') . 'header.php'); 
-    global $wpdb;
-    $health_finding = $wpdb->prefix . 'eb_health_finding';
-    $data = $wpdb->get_results("SELECT * FROM $health_finding");
-
-
-
+<?php include((dirname(__FILE__) . '/../') . 'header.php');
+global $wpdb;
+$health_finding = $wpdb->prefix . 'eb_health_finding';
+$data = $wpdb->get_results("
+    SELECT {$health_finding}.id AS health_finding_id, wp_eb_patients.id AS patient_id, {$health_finding}.*, wp_eb_patients.*
+    FROM {$health_finding}
+    INNER JOIN wp_eb_patients ON {$health_finding}.health_personnel = wp_eb_patients.id
+");
 
 
 
@@ -34,36 +35,44 @@
     <table class="wp-list-table widefat plugins this_datatable">
         <thead class="dark">
             <tr>
+                <th scope="col" class="manage-column column-patientID">#</th>
                 <th scope="col" class="manage-column column-patientID"><?php _e('History', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientFullName"><?php _e('Moment', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientBirthDate"><?php _e('Fever °C', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-patientTcNumber"><?php _e('Nabiz', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientTcNumber"><?php _e('Pulse', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-clinicAcceptanceDate"><?php _e('High/Low Blood Pressure', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-actions"><?php _e('SPO2%', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-actions"><?php _e('Health personnel', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-actions"><?php _e('Health personnel (Patient)', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-actions"><?php _e('Action', 'ebakim-wp'); ?></th>
             </tr>
         </thead>
         <tbody>
-        <?php
-        // Assuming $data is an array of rows from your database query
-        foreach ($data as $row) {
-            echo '<tr>';
-            echo '<td>' . esc_html($row->history) . '</td>';
-            echo '<td>' . esc_html($row->moment) . '</td>';
-            echo '<td>' . esc_html($row->fever) . '</td>';
-            echo '<td>' . esc_html($row->nabiz) . '</td>';
-            echo '<td>' . esc_html($row->blood_pressure) . '</td>';
-            echo '<td>' . esc_html($row->spo2) . '</td>';
-            echo '<td>' . esc_html($row->health_personnel) . '</td>';
-            echo '</tr>';
-        }
-        ?>
+            <?php
+            // Assuming $data is an array of rows from your database query
+            foreach ($data as $key => $row) {
+                echo '<tr>';
+                echo '<td>' . esc_html($key+1) . '</td>';
+                echo '<td>' . esc_html($row->history) . '</td>';
+                echo '<td>' . esc_html($row->moment) . '</td>';
+                echo '<td>' . esc_html($row->fever) . '</td>';
+                echo '<td>' . esc_html($row->nabiz) . '</td>';
+                echo '<td>' . esc_html($row->blood_pressure) . '</td>';
+                echo '<td>' . esc_html($row->spo2) . '</td>';
+                echo '<td>' . esc_html($row->patientFullName) . '</td>';
+                // <a href="' . admin_url('admin.php?page=edit_patient_health_finding&id=' . $row->id) . '" class="button">' . __('Edit', 'ebakim-wp') . '</a>
+                echo '<td style="display:flex; gap:10px;">
+                       
+                        <a href="' . admin_url('admin-post.php?action=delete_patient_health_finding&id=' . $row->id) . '" class="button button-danger delete_health_care">' . __('Delete', 'ebakim-wp') . '</a>
+                    </td>';
+                echo '</tr>';
+            }
+            ?>
 
         </tbody>
     </table>
     <div class="main-head" style="display: flex;flex-direction: column;gap: 10px;width: 300px;">
         <a href=""><button class="button">Download PDF</button></a>
-        <a href=""><button class="button">Download all as PDF</button></a>
+        <a href="<?php echo admin_url('admin-ajax.php?action=download_healthcare_all_pdf') ?>"><button class="button">Download all as PDF</button></a>
 
 
 
@@ -86,7 +95,7 @@
                 <span class="error-message"></span>
             </p>
             <p>
-                <strong style="display: table; margin-bottom: 5px"><?php echo __('Nabiz', 'ebakim-wp'); ?></strong>
+                <strong style="display: table; margin-bottom: 5px"><?php echo __('Pulse', 'ebakim-wp'); ?></strong>
                 <input required type="text" class="widefat" name="nabiz" placeholder="100" value="">
                 <span class="error-message"></span>
             </p>
@@ -101,9 +110,14 @@
                 <span class="error-message"></span>
             </p>
             <p>
-                <strong style="display: table; margin-bottom: 5px"><?php echo __('Health personnel', 'ebakim-wp'); ?></strong>
+                <strong style="display: table; margin-bottom: 5px"><?php echo __('Health personnel (Patient)', 'ebakim-wp'); ?></strong>
                 <select class="widefat" name="health_personnel">
-                    <option value="John Doe (Healthcare personnel)">John Doe (Healthcare personnel)</option>
+                    <?php
+                    $all_patients = get_all_patients();
+                    foreach ($all_patients as $k => $v) {
+                        echo '<option value="'. $v->id .'">'. $v->patientFullName .'</option>';
+                    }
+                    ?>
                 </select>
                 <span class="error-message"></span>
             </p>
@@ -118,6 +132,17 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.5/dist/xlsx.full.min.js"></script>
 
 <script>
+$(document).on("click", ".delete_health_care", function(e) {
+    e.preventDefault();
+    
+    // Show a confirmation dialog
+    if (confirm("Are you sure you want to delete this item?")) {
+        let href = $(this).attr('href');
+        window.location.href = href;
+    }
+});
+
+
     var columns = {};
     document.addEventListener("DOMContentLoaded", function() {
         const excelUploadForm = document.getElementById("upload_file");

@@ -10,6 +10,20 @@ function dd($data)
   print_r($data);
   die();
 }
+function get_all_patients() {
+  global $wpdb;
+
+  // Replace 'wp_eb_patients' with the actual table name if it's different.
+  $table_name = $wpdb->prefix . 'eb_patients';
+
+  // SQL query to retrieve all patients from the table.
+  $query = "SELECT * FROM $table_name";
+
+  // Execute the query.
+  $patients = $wpdb->get_results($query);
+
+  return $patients;
+}
 
 function projectRoot($path = '')
 {

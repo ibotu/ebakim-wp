@@ -18,11 +18,9 @@ require_once  $wp_root_path . '/wp-load.php';
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Setup Two Factor Authentication &lsaquo; eBakim &#8212; WordPress</title>
 	<meta name='robots' content='max-image-preview:large, noindex, noarchive' />
-	<!-- <link rel='stylesheet' id='dashicons-css' href='http://localhost/wordpress_6.3/wp-includes/css/dashicons.min.css?ver=6.3' media='all' /> -->
-	<link rel='stylesheet' id='buttons-css' href='http://localhost/wordpress_6.3/wp-includes/css/buttons.min.css?ver=6.3' media='all' />
-	<link rel='stylesheet' id='forms-css' href='http://localhost/wordpress_6.3/wp-admin/css/forms.min.css?ver=6.3' media='all' />
-	<!-- <link rel='stylesheet' id='l10n-css' href='http://localhost/wordpress_6.3/wp-admin/css/l10n.min.css?ver=6.3' media='all' /> -->
-	<link rel='stylesheet' id='login-css' href='http://localhost/wordpress_6.3/wp-admin/css/login.min.css?ver=6.3' media='all' />
+	<link rel='stylesheet' id='buttons-css' href='buttons.min.css' media='all' />
+	<link rel='stylesheet' id='forms-css' href='forms.min.css' media='all' />
+	<link rel='stylesheet' id='login-css' href='login.min.css' media='all' />
 	<meta name='referrer' content='strict-origin-when-cross-origin' />
 	<meta name="viewport" content="width=device-width" />
 	<style>
