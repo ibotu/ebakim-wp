@@ -4,13 +4,9 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab
+class ComposerStaticInit7ed491133e642dcdc5cf13fa6f570241
 {
     public static $files = array (
-        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
-        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
-        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '7166494aeff09009178f278afd86c83f' => __DIR__ . '/..' . '/yahnis-elsts/plugin-update-checker/load-v4p13.php',
     );
 
@@ -19,110 +15,12 @@ class ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab
         array (
             'eBakim\\' => 7,
         ),
-        'Z' => 
-        array (
-            'ZipStream\\' => 10,
-            'Zend\\Stdlib\\' => 12,
-            'Zend\\Memory\\' => 12,
-            'Zend\\Hydrator\\' => 14,
-        ),
-        'P' => 
-        array (
-            'Psr\\SimpleCache\\' => 16,
-            'Psr\\Http\\Message\\' => 17,
-            'Psr\\Http\\Client\\' => 16,
-            'PhpOffice\\PhpSpreadsheet\\' => 25,
-        ),
-        'M' => 
-        array (
-            'Matrix\\' => 7,
-        ),
-        'G' => 
-        array (
-            'GuzzleHttp\\Psr7\\' => 16,
-            'GuzzleHttp\\Promise\\' => 19,
-            'GuzzleHttp\\' => 11,
-        ),
-        'C' => 
-        array (
-            'Complex\\' => 8,
-        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'eBakim\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
-        ),
-        'ZipStream\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
-        ),
-        'Zend\\Stdlib\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-stdlib/src',
-        ),
-        'Zend\\Memory\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-memory/src',
-        ),
-        'Zend\\Hydrator\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-hydrator/src',
-        ),
-        'Psr\\SimpleCache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
-        ),
-        'Psr\\Http\\Message\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/http-factory/src',
-            1 => __DIR__ . '/..' . '/psr/http-message/src',
-        ),
-        'Psr\\Http\\Client\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/http-client/src',
-        ),
-        'PhpOffice\\PhpSpreadsheet\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
-        ),
-        'Matrix\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
-        ),
-        'GuzzleHttp\\Psr7\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
-        ),
-        'GuzzleHttp\\Promise\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
-        ),
-        'GuzzleHttp\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
-        ),
-        'Complex\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
-        ),
-    );
-
-    public static $prefixesPsr0 = array (
-        'Z' => 
-        array (
-            'ZendPdf\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/zendframework/zendpdf/library',
-            ),
-        ),
-        'H' => 
-        array (
-            'HTMLPurifier' => 
-            array (
-                0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
-            ),
         ),
     );
 
@@ -133,10 +31,9 @@ class ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitba5f7a31cd1f8775692acc3c6b8c0fab::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7ed491133e642dcdc5cf13fa6f570241::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7ed491133e642dcdc5cf13fa6f570241::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit7ed491133e642dcdc5cf13fa6f570241::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -1,0 +1,5 @@
+/* Style for the red-themed "Delete" button */
+.button-danger {
+    color: #be1627 !important; /* Text color */
+    border-color: #be1627 !important; /* Border color */
+}

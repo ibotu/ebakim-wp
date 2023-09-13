@@ -2,17 +2,18 @@
 
 namespace eBakim\Admin\Screen;
 
-use Zorgportal\App;
+use eBakim\App;
 
 class Screen
 {
     protected $errors = [];
-    
+
+
     public function __construct( App $appContext )
     {
         $this->appContext = $appContext;
     }
-
+  
     public function init() {
     }
 
