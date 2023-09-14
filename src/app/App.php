@@ -231,6 +231,15 @@ function wpdocs_render_delete_patient_health_finding()
         exit; // Always exit after a redirect
     }
 }
+function wpdocs_render_patient_health_finding()
+{
+    $template_path = dirname(plugin_dir_path(__FILE__)) . '/templates/views/wpdocs_render_patient_health_finding.php';
+    if (file_exists($template_path)) {
+        include_once($template_path);
+    } else {
+        echo 'Template file not found.';
+    }
+}
 function wpdocs_render_delete_patient()
 {
     if (isset($_GET['id']) && is_numeric($_GET['id'])) {
@@ -410,10 +419,19 @@ function main()
         'ebakim-health-finding-follow-up-form',            // Submenu slug
         'wpdocs_render_health_finding_follow_up_form'      // Callback function to render the submenu
     );
+    add_submenu_page(
+        'ebakim-patients',                // Parent menu slug
+        __('Health Finding Details', 'ebakim-wp'),  // Submenu page title
+        __('Health Finding Details', 'ebakim-wp'),  // Submenu menu title
+        'manage_options',                 // Required capability to access the submenu
+        'ebakim-patient_health_finding',            // Submenu slug
+        'wpdocs_render_patient_health_finding'      // Callback function to render the submenu
+    );
 
 
 
     remove_submenu_page('ebakim-main', 'ebakim-main');
+    remove_submenu_page('ebakim-patients', 'ebakim-patient_health_finding');
 }
 
 
@@ -744,18 +762,18 @@ add_action('admin_enqueue_scripts', 'enqueue_custom_admin_scripts');
 function my_custom_profile_image_field($user)
 {
 ?>
-    <h3><?php esc_html_e('Logo', 'ebakim-wp'); ?></h3>
+    <h3><?php esc_html_e('Signature', 'ebakim-wp'); ?></h3>
     <table class="form-table">
         <tr>
-            <th><label for="custom_logo"><?php esc_html_e('Health Findings Follow-up Form', 'ebakim-wp'); ?></label></th>
+            <th><label for="custom_signature"><?php esc_html_e('Health Findings Follow-up Form Signature', 'ebakim-wp'); ?></label></th>
             <td>
-                <input type="file" id="custom_logo" name="custom_logo" accept="image/*" />
+                <input type="file" id="custom_signature" name="custom_signature" accept="image/*" />
                 <br />
                 <?php
-                $custom_logo = get_user_meta($user->ID, 'custom_logo', true);
-                if ($custom_logo) {
-                    echo '<img src="' . esc_url($custom_logo) . '" style="max-width: 100px;" /><br />';
-                    echo '<span class="description">' . esc_html_e('Current logo:', 'ebakim-wp') . '</span>';
+                $custom_signature = get_user_meta($user->ID, 'custom_signature', true);
+                if ($custom_signature) {
+                    echo '<img src="' . esc_url($custom_signature) . '" style="max-width: 100px;" /><br />';
+                    echo '<span class="description">' . esc_html_e('Current signature:', 'ebakim-wp') . '</span>';
                 }
                 ?>
             </td>
@@ -769,14 +787,14 @@ function save_my_custom_profile_image_field($user_id)
 {
     if (current_user_can('edit_user', $user_id)) {
 
-        $custom_logo = $_FILES['custom_logo'];
+        $custom_signature = $_FILES['custom_signature'];
 
-        if (!empty($custom_logo['name'])) {
+        if (!empty($custom_signature['name'])) {
             $upload_overrides = array('test_form' => false);
-            $upload_result = wp_handle_upload($custom_logo, $upload_overrides);
+            $upload_result = wp_handle_upload($custom_signature, $upload_overrides);
 
             if (!empty($upload_result['url'])) {
-                update_user_meta($user_id, 'custom_logo', $upload_result['url']);
+                update_user_meta($user_id, 'custom_signature', $upload_result['url']);
             }
         }
     }
@@ -805,30 +823,20 @@ function download_healthcare_all_pdf()
     global $wpdb;
     $health_finding = $wpdb->prefix . 'eb_health_finding';
     $data = $wpdb->get_results("
-        SELECT {$health_finding}.id AS health_finding_id, wp_eb_patients.id AS patient_id, {$health_finding}.*, wp_eb_patients.*
+        SELECT {$health_finding}.id AS health_finding_id, wp_users.id AS user_id, {$health_finding}.*, wp_users.*
         FROM {$health_finding}
-        INNER JOIN wp_eb_patients ON {$health_finding}.health_personnel = wp_eb_patients.id
+        INNER JOIN wp_users ON {$health_finding}.health_personnel = wp_users.id
     ", ARRAY_A);
 
 
 
-    $custom_logo_url = get_user_meta(get_current_user_id(), 'custom_logo', true);
-    if (!empty($custom_logo_url)) {
-        $logo = '<img width="120px" height="100px" src="' . esc_url($custom_logo_url) . '" alt="Custom Profile Image" />';
-    } else {
-        $default_image_url = plugins_url('/ebakim-wp/src/assets/images/default.png');
-        $logo = '<img width="120px" height="100px" src="' . esc_url($default_image_url) . '" alt="Default Profile Image" />';
-    }
-
     $html = ' 
-<table style="border-collapse:collapse;margin-left:5.57pt; font-family:Calibri, sans-serif; width:100%;" cellspacing="0">
+<table style="border-collapse:collapse;margin-left:5.57pt; width:100%;" cellspacing="0">
     <tr style="height:14pt ">
         <td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-            rowspan="4">
-           ' . $logo . '
-              
+            rowspan="4"><img style="height:80px; width:120px;" src="'. plugins_url('/ebakim-wp/src/assets/images/logo-head.png') .'"/>              
         </td>
-        <td style="width:288pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+        <td style=" font-family:arial; font-size:24px; text-align:center; width:288pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
             rowspan="4">
             <p class="s1" style="padding-left: 20pt;text-indent: 0pt;text-align: left;"> ' . __(' Health Findings Follow-up Form', 'ebakim-wp') . '
             </p>
@@ -874,9 +882,21 @@ function download_healthcare_all_pdf()
         </td>
     </tr>
 </table>
-<p style="padding-top: 5pt;padding-left: 5pt;text-indent: 0pt;text-align: left;"><span style=" color: black;  font-style: normal; font-weight: bold; text-decoration: none; font-size: 12pt;">' . __('Name and Surname of the Patients', 'ebakim-wp') . '</span>: ' . reset($data)['patientFullName'] . '</p>
+<br>
+<table style="border-collapse:collapse;margin-left:5.57pt; width:100%;" cellspacing="0">
+    <tr style="height:38pt">
+        <td style="padding-left:10px; width:40%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"bgcolor="#C2D69B">
+           <b>Name and Surname of Patient</b>
+        </td>
+        <td style=" text-align:center; padding:5px; width:60%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+           <b>Name and Surname of Patient</b>
+        </td>
+       
+    </tr>
+    </table>
+    <br>
 
-<table style="border-collapse:collapse;margin-left:5.57pt " cellspacing="0">
+<table style="border-collapse:collapse;margin-left:5.57pt; width:100%;" cellspacing="0">
     <tr style="height:38pt">
         <td style=" text-align:center; padding:5px; width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
             bgcolor="#C2D69B">
@@ -916,8 +936,29 @@ function download_healthcare_all_pdf()
         </td>
     </tr>';
 
+    // echo $html; die();
+
+    
 
     foreach ($data as $k => $v) {
+        $custom_signature_url = get_user_meta($v['user_id'], 'custom_signature', true);
+        if (!empty($custom_signature_url)) {
+            $signature = esc_url($custom_signature_url);
+        } else {
+            $signature = '';
+        }
+    
+    
+        $first_name = get_user_meta($v['user_id'], 'first_name', true);
+        if($first_name){
+            $last_name = get_user_meta($v['user_id'], 'last_name', true);
+            $name_of_health_care_person = $first_name . ' ' . $last_name;
+        }else{
+            $name_of_health_care_person = get_userdata($v['user_id'])->user_login;
+        }
+
+
+
         $html .= '
         <tr style="height:21pt; ">
         <td
@@ -945,16 +986,17 @@ function download_healthcare_all_pdf()
             <p style="text-indent: 0pt;text-align: left;">' . $v['spo2'] . '</p>
         </td>
         <td
-            style=" text-align:center; padding:5px; width:149pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-            <p style="text-indent: 0pt;text-align: left;">' . $v['patientFullName'] . '</p>
-        </td>
+            style="text-align:left; padding:5px; width:149pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+            <div style="display: flex;align-items: center;">
+            <p style="margin:0px; padding-bottom:10px;">  '. $name_of_health_care_person . '</p>
+            '. ($signature ? '<img style="width:50px; height:40px" src="'. $signature .'" />' : '') .'
+            </div>
+            </td>
     </tr>';
     }
 
     $html .= '
     </table>';
-
-
 
 
 

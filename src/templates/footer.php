@@ -1,6 +1,19 @@
 <script>
     jQuery(document).ready(function($) {
 
+        $(".flatpicker_this").datepicker({
+                dateFormat: "dd/mm/yy",
+                showButtonPanel: true,
+                changeMonth: true,
+                changeYear: true,
+            });
+
+                      
+            $('.this_datatable_30_show').dataTable({
+    "pageLength": 29,
+    "lengthMenu": [10, 25,29, 50, 100]
+});
+
 
         // // Preview image on file input change
         // $('.imageInput').on('change', function() {

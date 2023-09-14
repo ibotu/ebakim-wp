@@ -76,7 +76,8 @@ if (isset($_GET['id'])) {
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Patient Birthdate', 'ebakim-wp'); ?></strong>
-            <input type="date" name="patientBirthDate" value="<?php echo esc_attr($patient_data->patientBirthDate ?? ''); ?>">
+            <input type="text" name="patientBirthDate" class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" value="<?php echo esc_attr($patient_data->patientBirthDate ?? ''); ?>">
+            
             <span class="error-message"></span>
 
         </p>
@@ -88,7 +89,7 @@ if (isset($_GET['id'])) {
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Clinic Acceptance Date', 'ebakim-wp'); ?></strong>
-            <input type="date" name="clinicAcceptanceDate" value="<?php echo esc_attr($patient_data->clinicAcceptanceDate ?? ''); ?>">
+            <input type="text" name="clinicAcceptanceDate"  class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>"  value="<?php echo esc_attr($patient_data->clinicAcceptanceDate ?? ''); ?>">
             <span class="error-message"></span>
 
         </p>
@@ -106,25 +107,25 @@ if (isset($_GET['id'])) {
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Clinic End Date', 'ebakim-wp'); ?></strong>
-            <input type="date" name="clinicEndDate" value="<?php echo esc_attr($patient_data->clinicEndDate ?? ''); ?>">
+            <input type="text" class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" name="clinicEndDate" value="<?php echo esc_attr($patient_data->clinicEndDate ?? ''); ?>">
             <span class="error-message"></span>
 
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Clinic Life Plan Date', 'ebakim-wp'); ?></strong>
-            <input type="date" name="clinicLifePlanDate" value="<?php echo esc_attr($patient_data->clinicLifePlanDate ?? ''); ?>">
+            <input type="text" class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" name="clinicLifePlanDate" value="<?php echo esc_attr($patient_data->clinicLifePlanDate ?? ''); ?>">
             <span class="error-message"></span>
 
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Clinic ESKR Date', 'ebakim-wp'); ?></strong>
-            <input type="date" name="clinicEskrDate" value="<?php echo esc_attr($patient_data->clinicEskrDate ?? ''); ?>">
+            <input type="text" class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" name="clinicEskrDate" value="<?php echo esc_attr($patient_data->clinicEskrDate ?? ''); ?>">
             <span class="error-message"></span>
 
         </p>
         <p>
             <strong style="display: table; margin-bottom: 5px"><?php echo __('Clinic Guardian Date', 'ebakim-wp'); ?></strong>
-            <input type="date" name="clinicGuardianDate" value="<?php echo esc_attr($patient_data->clinicGuardianDate ?? ''); ?>">
+            <input type="text" class="flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" name="clinicGuardianDate" value="<?php echo esc_attr($patient_data->clinicGuardianDate ?? ''); ?>">
             <span class="error-message"></span>
 
         </p>

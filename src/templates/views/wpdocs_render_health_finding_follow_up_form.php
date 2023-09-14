@@ -3,10 +3,10 @@
 global $wpdb;
 $health_finding = $wpdb->prefix . 'eb_health_finding';
 $data = $wpdb->get_results("
-    SELECT {$health_finding}.id AS health_finding_id, wp_eb_patients.id AS patient_id, {$health_finding}.*, wp_eb_patients.*
+    SELECT {$health_finding}.id AS health_finding_id, wp_users.id AS user_id, {$health_finding}.*, wp_users.*
     FROM {$health_finding}
-    INNER JOIN wp_eb_patients ON {$health_finding}.health_personnel = wp_eb_patients.id
-");
+    INNER JOIN wp_users ON {$health_finding}.health_personnel = wp_users.id
+    ", ARRAY_A);
 
 
 
@@ -32,17 +32,17 @@ $data = $wpdb->get_results("
     </div>
 
 
-    <table class="wp-list-table widefat plugins this_datatable">
+    <table class="wp-list-table widefat plugins this_datatable_30_show">
         <thead class="dark">
             <tr>
                 <th scope="col" class="manage-column column-patientID">#</th>
-                <th scope="col" class="manage-column column-patientID"><?php _e('History', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-patientID"><?php _e('Date', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientFullName"><?php _e('Moment', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientBirthDate"><?php _e('Fever °C', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-patientTcNumber"><?php _e('Pulse', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-clinicAcceptanceDate"><?php _e('High/Low Blood Pressure', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-actions"><?php _e('SPO2%', 'ebakim-wp'); ?></th>
-                <th scope="col" class="manage-column column-actions"><?php _e('Health personnel (Patient)', 'ebakim-wp'); ?></th>
+                <th scope="col" class="manage-column column-actions"><?php _e('Health personnel', 'ebakim-wp'); ?></th>
                 <th scope="col" class="manage-column column-actions"><?php _e('Action', 'ebakim-wp'); ?></th>
             </tr>
         </thead>
@@ -50,19 +50,36 @@ $data = $wpdb->get_results("
             <?php
             // Assuming $data is an array of rows from your database query
             foreach ($data as $key => $row) {
+                $custom_signature_url = get_user_meta($row['user_id'], 'custom_signature', true);
+                if (!empty($custom_signature_url)) {
+                    $signature = esc_url($custom_signature_url);
+                } else {
+                    $signature = '';
+                }
+
+
+                $first_name = get_user_meta($row['user_id'], 'first_name', true);
+                if ($first_name) {
+                    $last_name = get_user_meta($row['user_id'], 'last_name', true);
+                    $name_of_health_care_person = $first_name . ' ' . $last_name;
+                } else {
+                    $name_of_health_care_person = get_userdata($row['user_id'])->user_login;
+                }
+
                 echo '<tr>';
-                echo '<td>' . esc_html($key+1) . '</td>';
-                echo '<td>' . esc_html($row->history) . '</td>';
-                echo '<td>' . esc_html($row->moment) . '</td>';
-                echo '<td>' . esc_html($row->fever) . '</td>';
-                echo '<td>' . esc_html($row->nabiz) . '</td>';
-                echo '<td>' . esc_html($row->blood_pressure) . '</td>';
-                echo '<td>' . esc_html($row->spo2) . '</td>';
-                echo '<td>' . esc_html($row->patientFullName) . '</td>';
-                // <a href="' . admin_url('admin.php?page=edit_patient_health_finding&id=' . $row->id) . '" class="button">' . __('Edit', 'ebakim-wp') . '</a>
+                echo '<td>' . esc_html($key + 1) . '</td>';
+                echo '<td>' . esc_html($row['history'] ? $row['history'] : '-') . '</td>';
+                echo '<td>' . esc_html($row['moment'] ? $row['moment'] : '-') . '</td>';
+                echo '<td>' . esc_html($row['fever'] ? $row['fever'] : '-') . '</td>';
+                echo '<td>' . esc_html($row['nabiz'] ? $row['nabiz'] : '-') . '</td>';
+                echo '<td>' . esc_html($row['blood_pressure'] ? $row['blood_pressure'] : '-') . '</td>';
+                echo '<td>' . esc_html($row['spo2'] ? $row['spo2'] : '-') . '</td>';
+                echo '<td style="">
+                    <div style="gap: 5px;display: flex;align-items: center;">' . $name_of_health_care_person . ' ' . ($signature ? '<img style="width:50px; height:40px" src="' . $signature . '" />' : '') . '</div>
+                </td>';
                 echo '<td style="display:flex; gap:10px;">
-                       
-                        <a href="' . admin_url('admin-post.php?action=delete_patient_health_finding&id=' . $row->id) . '" class="button button-danger delete_health_care">' . __('Delete', 'ebakim-wp') . '</a>
+                        <a href="' . admin_url('admin.php?page=ebakim-patient_health_finding&id=' . $row['id']) . '" class="button">' . __('View', 'ebakim-wp') . '</a>
+                        <a href="' . admin_url('admin-post.php?action=delete_patient_health_finding&id=' . $row['id']) . '" class="button button-danger delete_health_care">' . __('Delete', 'ebakim-wp') . '</a>
                     </td>';
                 echo '</tr>';
             }
@@ -80,45 +97,61 @@ $data = $wpdb->get_results("
             <input type="hidden" name="action" value="ebakim_add_health_finding_follow_up_form">
 
             <p>
-                <strong style="display: table; margin-bottom: 5px"><?php echo __('History', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" placeholder="GG/AA/YYYY" name="history" value="">
+                <strong style="display: table; margin-bottom: 5px"><?php echo __('Date', 'ebakim-wp'); ?></strong>
+                <input type="text" class="widefat flatpicker_this" placeholder="<?php echo __('DD/MM/YYYY', 'ebakim-wp'); ?>" name="history" value="">
+
                 <span class="error-message"></span>
             </p>
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('Moment', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" placeholder="00:00" name="moment" value="">
+                <input type="text" class="widefat" placeholder="00:00" name="moment" value="">
                 <span class="error-message"></span>
             </p>
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('Fever °C', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" name="fever" placeholder="36,5" value="">
+                <input type="text" class="widefat" name="fever" placeholder="36,5" value="">
                 <span class="error-message"></span>
             </p>
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('Pulse', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" name="nabiz" placeholder="100" value="">
+                <input type="text" class="widefat" name="nabiz" placeholder="100" value="">
                 <span class="error-message"></span>
             </p>
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('High/Low Blood Pressure', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" name="blood_pressure" placeholder="120/80" value="">
+                <input type="text" class="widefat" name="blood_pressure" placeholder="120/80" value="">
                 <span class="error-message"></span>
             </p>
             <p>
                 <strong style="display: table; margin-bottom: 5px"><?php echo __('SPO2%', 'ebakim-wp'); ?></strong>
-                <input required type="text" class="widefat" name="spo2" placeholder="97" value="">
+                <input type="text" class="widefat" name="spo2" placeholder="97" value="">
                 <span class="error-message"></span>
             </p>
             <p>
-                <strong style="display: table; margin-bottom: 5px"><?php echo __('Health personnel (Patient)', 'ebakim-wp'); ?></strong>
+                <strong style="display: table; margin-bottom: 5px"><?php echo __('Health personnel', 'ebakim-wp'); ?></strong>
                 <select class="widefat" name="health_personnel">
                     <?php
-                    $all_patients = get_all_patients();
-                    foreach ($all_patients as $k => $v) {
-                        echo '<option value="'. $v->id .'">'. $v->patientFullName .'</option>';
+                    $all_patients = get_all_users();
+                    $current_user_id = get_current_user_id();
+
+                    foreach ($all_patients as $patient) {
+                        $user_id = $patient->ID;
+                        $first_name = get_user_meta($user_id, 'first_name', true);
+                        $last_name = get_user_meta($user_id, 'last_name', true);
+
+                        if (!empty($first_name)) {
+                            $name = $first_name . ' ' . $last_name;
+                        } else {
+                            $name = get_userdata($user_id)->user_login;
+                        }
+
+                        $selected = ($user_id == $current_user_id) ? 'selected' : '';
+
+                        echo '<option value="' . $user_id . '" ' . $selected . '>' . $name . '</option>';
                     }
                     ?>
                 </select>
+
                 <span class="error-message"></span>
             </p>
             <button type="submit" class="button button-primary">Add</button>
@@ -132,15 +165,16 @@ $data = $wpdb->get_results("
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.5/dist/xlsx.full.min.js"></script>
 
 <script>
-$(document).on("click", ".delete_health_care", function(e) {
-    e.preventDefault();
-    
-    // Show a confirmation dialog
-    if (confirm("Are you sure you want to delete this item?")) {
-        let href = $(this).attr('href');
-        window.location.href = href;
-    }
-});
+
+    $(document).on("click", ".delete_health_care", function(e) {
+        e.preventDefault();
+
+        // Show a confirmation dialog
+        if (confirm("Are you sure you want to delete this item?")) {
+            let href = $(this).attr('href');
+            window.location.href = href;
+        }
+    });
 
 
     var columns = {};
